@@ -1,10 +1,23 @@
 <script lang="ts">
 	import { signIn } from '@auth/sveltekit/client';
+	import { page } from '$app/stores';
 
 	let email = $state('');
 	let password = $state('');
 	let error = $state('');
 	let loading = $state(false);
+
+	// Show error from URL params (Auth.js redirects with ?error=...)
+	$effect(() => {
+		const urlError = $page.url.searchParams.get('error');
+		if (urlError) {
+			if (urlError === 'CredentialsSignin') {
+				error = 'Invalid email or password';
+			} else {
+				error = 'An error occurred during sign in';
+			}
+		}
+	});
 
 	async function handleCredentialsLogin(e: Event) {
 		e.preventDefault();
@@ -12,15 +25,28 @@
 		error = '';
 
 		try {
+			// redirect: false so we can handle errors client-side
 			const result = await signIn('credentials', {
 				email,
 				password,
-				redirect: true,
+				redirect: false,
 				callbackUrl: '/'
 			});
+
+			if (result?.error) {
+				error = 'Invalid email or password';
+				loading = false;
+				return;
+			}
+
+			// Success - redirect manually
+			if (result?.url) {
+				window.location.href = result.url;
+			} else {
+				window.location.href = '/';
+			}
 		} catch (err) {
 			error = 'Invalid email or password';
-		} finally {
 			loading = false;
 		}
 	}

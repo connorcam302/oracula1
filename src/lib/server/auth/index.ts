@@ -1,9 +1,8 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
 import Google from '@auth/sveltekit/providers/google';
 import Credentials from '@auth/sveltekit/providers/credentials';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { db } from '$lib/server/db';
-import { users, accounts, sessions, verificationTokens } from '$lib/server/db/schema';
+import { users } from '$lib/server/db/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import type { Provider } from '@auth/sveltekit/providers';
@@ -45,12 +44,8 @@ if (env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET) {
 }
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
-	adapter: DrizzleAdapter(db, {
-		usersTable: users as any,
-		accountsTable: accounts,
-		sessionsTable: sessions,
-		verificationTokensTable: verificationTokens
-	}),
+	// NOTE: No adapter - Credentials provider is incompatible with DB adapters.
+	// User creation/lookup is handled manually in authorize() and the register endpoint.
 	providers,
 	session: {
 		strategy: 'jwt'
@@ -59,18 +54,25 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 		async jwt({ token, user }) {
 			if (user) {
 				token.id = user.id;
+				token.name = user.name;
+				token.email = user.email;
+				token.picture = user.image;
 			}
 			return token;
 		},
 		async session({ session, token }) {
-			if (session.user && token.id) {
+			if (session.user) {
 				session.user.id = token.id as string;
+				session.user.name = token.name as string;
+				session.user.email = token.email as string;
+				session.user.image = token.picture as string;
 			}
 			return session;
 		}
 	},
 	pages: {
-		signIn: '/auth/signin'
+		signIn: '/auth/signin',
+		error: '/auth/signin'
 	},
 	trustHost: true
 });

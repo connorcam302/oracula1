@@ -42,12 +42,24 @@
 			}
 
 			// Auto sign in after registration
-			await signIn('credentials', {
+			const result = await signIn('credentials', {
 				email,
 				password,
-				redirect: true,
+				redirect: false,
 				callbackUrl: '/'
 			});
+
+			if (result?.error) {
+				error = 'Account created but sign-in failed. Try signing in manually.';
+				loading = false;
+				return;
+			}
+
+			if (result?.url) {
+				window.location.href = result.url;
+			} else {
+				window.location.href = '/';
+			}
 		} catch (err) {
 			error = 'An error occurred during registration';
 		} finally {
