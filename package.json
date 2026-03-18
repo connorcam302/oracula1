@@ -9,7 +9,9 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"db:seed": "tsx scripts/seed.ts",
+		"db:reset": "docker compose down -v && docker compose up -d && sleep 3 && tsx scripts/seed.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
@@ -20,6 +22,7 @@
 		"drizzle-kit": "^0.31.10",
 		"svelte": "^5.51.0",
 		"svelte-check": "^4.4.2",
+		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1"
 	},
