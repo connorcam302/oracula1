@@ -4,6 +4,7 @@
 	import { Avatar } from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
+	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import {
 		Home,
 		Trophy,
@@ -142,18 +143,21 @@
 		{/if}
 	</div>
 
-	<!-- Toggle -->
+	<!-- Theme + Toggle -->
 	<div class="border-t border-sidebar-border p-2">
-		<button
-			onclick={() => (collapsed = !collapsed)}
-			class="flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-		>
-			{#if collapsed}
-				<ChevronRight class="h-5 w-5" />
-			{:else}
-				<ChevronLeft class="h-5 w-5" />
-				<span class="ml-2">Collapse</span>
-			{/if}
-		</button>
+		<div class="flex items-center {collapsed ? 'justify-center' : 'justify-between px-2'}">
+			<ThemeToggle />
+			<button
+				onclick={() => (collapsed = !collapsed)}
+				class="flex items-center rounded-lg px-2 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+			>
+				{#if collapsed}
+					<ChevronRight class="h-5 w-5" />
+				{:else}
+					<ChevronLeft class="h-5 w-5" />
+					<span class="ml-1">Collapse</span>
+				{/if}
+			</button>
+		</div>
 	</div>
 </aside>
