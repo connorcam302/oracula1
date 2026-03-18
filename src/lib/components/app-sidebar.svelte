@@ -14,7 +14,8 @@
 		ChevronLeft,
 		ChevronRight,
 		Flag,
-		Users
+		Users,
+		UserCheck
 	} from 'lucide-svelte';
 
 	interface Props {
@@ -76,6 +77,23 @@
 				{/if}
 			</a>
 		{/each}
+		<!-- Claim Profile link (only when signed in) -->
+		{#if session?.user}
+			<a
+				href="/claim"
+				class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors {isActive(
+					'/claim',
+					$page.url.pathname
+				)
+					? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+					: 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed ? 'justify-center' : ''}"
+			>
+				<UserCheck class="h-5 w-5 shrink-0" />
+				{#if !collapsed}
+					<span>Claim Profile</span>
+				{/if}
+			</a>
+		{/if}
 	</nav>
 
 	<Separator />
