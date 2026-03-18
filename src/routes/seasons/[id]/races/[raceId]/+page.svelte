@@ -131,7 +131,7 @@
 							<select
 								id="result-driver"
 								bind:value={selectedUser}
-								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
 							>
 								<option value="">Select driver...</option>
 								{#each data.allUsers as user}
@@ -156,7 +156,7 @@
 							<select
 								id="result-team"
 								bind:value={selectedTeam}
-								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
 							>
 								<option value="">No team</option>
 								{#each data.allTeams as team}

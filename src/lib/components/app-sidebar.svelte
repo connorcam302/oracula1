@@ -48,12 +48,12 @@
 	<div class="flex items-center justify-between p-4">
 		{#if !collapsed}
 			<a href="/" class="flex items-center gap-2">
-				<Flag class="h-6 w-6 text-red-500" />
+				<Flag class="h-6 w-6 text-primary" />
 				<span class="text-lg font-bold">Oracula</span>
 			</a>
 		{:else}
 			<a href="/" class="mx-auto">
-				<Flag class="h-6 w-6 text-red-500" />
+				<Flag class="h-6 w-6 text-primary" />
 			</a>
 		{/if}
 	</div>
@@ -70,7 +70,7 @@
 					item.href,
 					$page.url.pathname
 				)
-					? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+					? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
 					: 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed ? 'justify-center' : ''}"
 			>
 				<Icon class="h-5 w-5 shrink-0" />
@@ -87,7 +87,7 @@
 					'/claim',
 					$page.url.pathname
 				)
-					? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+					? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
 					: 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed ? 'justify-center' : ''}"
 			>
 				<UserCheck class="h-5 w-5 shrink-0" />

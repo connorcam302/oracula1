@@ -33,36 +33,40 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	const currentUserId = session.user.id;
 
-	// Transfer all race results from placeholder to current user
-	await db
-		.update(raceResults)
-		.set({ userId: currentUserId })
-		.where(eq(raceResults.userId, placeholderUserId));
+	// Verify current user exists in DB (Google sign-in may not have persisted them yet)
+	const [currentUser] = await db.select().from(users).where(eq(users.id, currentUserId)).limit(1);
+	if (!currentUser) {
+		return json({ error: `Your account (${currentUserId}) does not exist in the database. Try signing out and back in.` }, { status: 400 });
+	}
 
-	// Transfer team memberships
-	await db
-		.update(seasonTeamMembers)
-		.set({ userId: currentUserId })
-		.where(eq(seasonTeamMembers.userId, placeholderUserId));
+	try {
+		await db.transaction(async (tx) => {
+			// Transfer all race results from placeholder to current user
+			await tx
+				.update(raceResults)
+				.set({ userId: currentUserId })
+				.where(eq(raceResults.userId, placeholderUserId));
 
-	// Mark the placeholder as claimed
-	await db
-		.update(users)
-		.set({ claimed: true })
-		.where(eq(users.id, placeholderUserId));
+			// Transfer team memberships
+			await tx
+				.update(seasonTeamMembers)
+				.set({ userId: currentUserId })
+				.where(eq(seasonTeamMembers.userId, placeholderUserId));
 
-	// Update the current user's username to the placeholder's if the current user doesn't have a meaningful one
-	const [currentUser] = await db
-		.select()
-		.from(users)
-		.where(eq(users.id, currentUserId))
-		.limit(1);
+			// Delete the placeholder user now that all data has been transferred
+			await tx.delete(users).where(eq(users.id, placeholderUserId));
 
-	if (currentUser && (!currentUser.username || currentUser.username === currentUser.email)) {
-		await db
-			.update(users)
-			.set({ username: placeholder.username })
-			.where(eq(users.id, currentUserId));
+			// Update the current user's username to the placeholder's if they have an auto-generated one
+			if (!currentUser.username || currentUser.username === currentUser.email) {
+				await tx
+					.update(users)
+					.set({ username: placeholder.username })
+					.where(eq(users.id, currentUserId));
+			}
+		});
+	} catch (err) {
+		console.error('Claim failed:', err);
+		return json({ error: 'Failed to claim profile: ' + (err instanceof Error ? err.message : String(err)) }, { status: 500 });
 	}
 
 	return json({ success: true });

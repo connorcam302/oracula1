@@ -5,6 +5,7 @@ import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 import type { Provider } from '@auth/sveltekit/providers';
 import { env } from '$env/dynamic/private';
 
@@ -51,9 +52,39 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 		strategy: 'jwt'
 	},
 	callbacks: {
-		async jwt({ token, user }) {
+		async jwt({ token, user, account }) {
 			if (user) {
-				token.id = user.id;
+				if (account?.provider === 'google') {
+					// Look up existing user by Google ID or email, create if missing
+					let dbUser = null;
+					if (user.email) {
+						[dbUser] = await db.select().from(users).where(eq(users.email, user.email)).limit(1);
+					}
+					if (!dbUser && account.providerAccountId) {
+						[dbUser] = await db.select().from(users).where(eq(users.googleId, account.providerAccountId)).limit(1);
+					}
+					if (!dbUser) {
+						// First-time Google sign-in — create a DB user
+						const username = (user.name ?? user.email ?? 'user').replace(/\s+/g, '').toLowerCase().slice(0, 30) + Math.floor(Math.random() * 1000);
+						[dbUser] = await db.insert(users).values({
+							id: randomUUID(),
+							username,
+							email: user.email ?? null,
+							name: user.name ?? null,
+							image: user.image ?? null,
+							avatarUrl: user.image ?? null,
+							googleId: account.providerAccountId,
+							claimed: true
+						}).returning();
+					} else if (!dbUser.googleId) {
+						// Existing email user logging in with Google for first time — link account
+						await db.update(users).set({ googleId: account.providerAccountId }).where(eq(users.id, dbUser.id));
+					}
+					token.id = dbUser.id;
+				} else {
+					// Credentials provider — id is already the DB user id from authorize()
+					token.id = user.id;
+				}
 				token.name = user.name;
 				token.email = user.email;
 				token.picture = user.image;

@@ -5,7 +5,6 @@
 	import { ArrowLeft } from 'lucide-svelte';
 
 	let name = $state('');
-	let year = $state(new Date().getFullYear());
 	let error = $state('');
 	let loading = $state(false);
 
@@ -18,7 +17,7 @@
 			const res = await fetch('/api/seasons', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name, year })
+				body: JSON.stringify({ name })
 			});
 
 			const data = await res.json();
@@ -68,19 +67,6 @@
 						required
 						class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-foreground shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
 						placeholder="e.g. Bornana Season 8"
-					/>
-				</div>
-
-				<div>
-					<label for="year" class="block text-sm font-medium text-foreground">Year</label>
-					<input
-						id="year"
-						type="number"
-						bind:value={year}
-						required
-						min="2020"
-						max="2030"
-						class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-foreground shadow-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
 					/>
 				</div>
 

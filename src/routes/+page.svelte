@@ -32,8 +32,8 @@
 		<Card>
 			<CardContent class="p-6">
 				<div class="flex items-center gap-4">
-					<div class="rounded-lg bg-green-500/10 p-3">
-						<Flag class="h-6 w-6 text-green-500" />
+					<div class="rounded-lg bg-primary/10 p-3">
+						<Flag class="h-6 w-6 text-primary" />
 					</div>
 					<div>
 						<p class="text-sm text-muted-foreground">Races Completed</p>
@@ -46,8 +46,8 @@
 		<Card>
 			<CardContent class="p-6">
 				<div class="flex items-center gap-4">
-					<div class="rounded-lg bg-blue-500/10 p-3">
-						<Users class="h-6 w-6 text-blue-500" />
+					<div class="rounded-lg bg-primary/10 p-3">
+						<Users class="h-6 w-6 text-primary" />
 					</div>
 					<div>
 						<p class="text-sm text-muted-foreground">Latest Season</p>
@@ -60,8 +60,8 @@
 		<Card>
 			<CardContent class="p-6">
 				<div class="flex items-center gap-4">
-					<div class="rounded-lg bg-orange-500/10 p-3">
-						<TrendingUp class="h-6 w-6 text-orange-500" />
+					<div class="rounded-lg bg-primary/10 p-3">
+						<TrendingUp class="h-6 w-6 text-primary" />
 					</div>
 					<div>
 						<p class="text-sm text-muted-foreground">Top Driver</p>
@@ -134,11 +134,11 @@
 							<div class="text-right">
 								<p class="text-xs text-muted-foreground">{race.scheduledDate || ''}</p>
 								{#if race.isCompleted}
-									<span
-										class="inline-flex items-center rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600"
-									>
-										Completed
-									</span>
+								<span
+									class="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
+								>
+									Completed
+								</span>
 								{/if}
 							</div>
 						</a>

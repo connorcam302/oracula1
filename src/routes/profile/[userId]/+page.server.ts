@@ -4,8 +4,9 @@ import { users, raceResults, races, seasons, tracks, teams } from '$lib/server/d
 import { eq, sql, desc, count, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
 	const userId = params.userId;
+	const session = await locals.auth?.();
 
 	const [user] = await db
 		.select()
@@ -58,6 +59,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			claimed: user.claimed,
 			createdAt: user.createdAt
 		},
+		currentUserId: session?.user?.id ?? null,
 		results,
 		stats: {
 			totalRaces,

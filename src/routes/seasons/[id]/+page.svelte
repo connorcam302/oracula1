@@ -121,7 +121,7 @@
 									<select
 										id="race-track"
 										bind:value={selectedTrack}
-										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
 									>
 										<option value="">Select track...</option>
 										{#each data.tracks as track}
@@ -136,7 +136,7 @@
 										type="number"
 										bind:value={roundNumber}
 										min="1"
-										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
 									/>
 								</div>
 								<div>
@@ -145,7 +145,7 @@
 										id="race-date"
 										type="date"
 										bind:value={scheduledDate}
-										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
 									/>
 								</div>
 							</div>
@@ -251,7 +251,7 @@
 								<select
 									id="team-user"
 									bind:value={selectedUser}
-									class="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+									class="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
 								>
 									<option value="">Select user...</option>
 									{#each data.allUsers as user}
@@ -264,7 +264,7 @@
 								<select
 									id="team-select"
 									bind:value={selectedTeam}
-									class="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+									class="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
 								>
 									<option value="">Select team...</option>
 									{#each data.allTeams as team}

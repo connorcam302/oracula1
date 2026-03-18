@@ -45,7 +45,7 @@
 		<AppSidebar bind:collapsed session={data.session} />
 	</div>
 
-	<main class="flex-1 overflow-y-auto bg-background">
+	<main class="flex flex-1 flex-col overflow-y-auto bg-background">
 		{@render children()}
 	</main>
 </div>

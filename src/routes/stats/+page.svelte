@@ -151,7 +151,7 @@
 		<div>
 			<select
 				onchange={handleSeasonFilter}
-				class="rounded-md border border-input bg-background px-3 py-2 text-sm"
+				class="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
 				value={data.selectedSeason || ''}
 			>
 				<option value="">All Seasons</option>
@@ -207,7 +207,7 @@
 		<Card>
 			<CardHeader>
 				<div class="flex items-center gap-2">
-					<Users class="h-5 w-5 text-blue-500" />
+					<Users class="h-5 w-5 text-primary" />
 					<CardTitle>Constructor Standings</CardTitle>
 				</div>
 			</CardHeader>
