@@ -127,8 +127,9 @@
 				<div class="mb-6 rounded-lg border border-border p-4 space-y-3">
 					<div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
 						<div>
-							<label class="block text-sm font-medium mb-1">Driver</label>
+							<label for="result-driver" class="block text-sm font-medium mb-1">Driver</label>
 							<select
+								id="result-driver"
 								bind:value={selectedUser}
 								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 							>
@@ -139,8 +140,9 @@
 							</select>
 						</div>
 						<div>
-							<label class="block text-sm font-medium mb-1">Position</label>
+							<label for="result-position" class="block text-sm font-medium mb-1">Position</label>
 							<input
+								id="result-position"
 								type="number"
 								bind:value={position}
 								min="1"
@@ -150,8 +152,9 @@
 							/>
 						</div>
 						<div>
-							<label class="block text-sm font-medium mb-1">Team</label>
+							<label for="result-team" class="block text-sm font-medium mb-1">Team</label>
 							<select
+								id="result-team"
 								bind:value={selectedTeam}
 								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 							>

@@ -7,6 +7,7 @@ import { users, accounts, sessions, verificationTokens } from '$lib/server/db/sc
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import type { Provider } from '@auth/sveltekit/providers';
+import { env } from '$env/dynamic/private';
 
 const providers: Provider[] = [
 	Credentials({
@@ -39,13 +40,13 @@ const providers: Provider[] = [
 ];
 
 // Only add Google provider if credentials are configured
-if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
+if (env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET) {
 	providers.unshift(Google);
 }
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
 	adapter: DrizzleAdapter(db, {
-		usersTable: users,
+		usersTable: users as any,
 		accountsTable: accounts,
 		sessionsTable: sessions,
 		verificationTokensTable: verificationTokens

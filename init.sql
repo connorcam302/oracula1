@@ -6,7 +6,10 @@
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
+    name TEXT,
     email VARCHAR(255),
+    email_verified TIMESTAMP,
+    image TEXT,
     password_hash TEXT,
     avatar_url TEXT,
     google_id TEXT UNIQUE,

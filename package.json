@@ -16,6 +16,7 @@
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@types/bcryptjs": "^2.4.6",
+		"@types/node": "^25.5.0",
 		"drizzle-kit": "^0.31.10",
 		"svelte": "^5.51.0",
 		"svelte-check": "^4.4.2",

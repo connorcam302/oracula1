@@ -21,7 +21,7 @@
 	let showAddRace = $state(false);
 	let showAddTeamMember = $state(false);
 	let selectedTrack = $state('');
-	let roundNumber = $state(data.races.length + 1);
+	let roundNumber = $derived(data.races.length + 1);
 	let scheduledDate = $state('');
 	let addingRace = $state(false);
 
@@ -117,8 +117,9 @@
 						<div class="mb-4 rounded-lg border border-border p-4 space-y-3">
 							<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
 								<div>
-									<label class="block text-sm font-medium mb-1">Track</label>
+									<label for="race-track" class="block text-sm font-medium mb-1">Track</label>
 									<select
+										id="race-track"
 										bind:value={selectedTrack}
 										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 									>
@@ -129,8 +130,9 @@
 									</select>
 								</div>
 								<div>
-									<label class="block text-sm font-medium mb-1">Round</label>
+									<label for="race-round" class="block text-sm font-medium mb-1">Round</label>
 									<input
+										id="race-round"
 										type="number"
 										bind:value={roundNumber}
 										min="1"
@@ -138,8 +140,9 @@
 									/>
 								</div>
 								<div>
-									<label class="block text-sm font-medium mb-1">Date</label>
+									<label for="race-date" class="block text-sm font-medium mb-1">Date</label>
 									<input
+										id="race-date"
 										type="date"
 										bind:value={scheduledDate}
 										class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -244,8 +247,9 @@
 					{#if showAddTeamMember}
 						<div class="mb-4 space-y-3 rounded-lg border border-border p-3">
 							<div>
-								<label class="block text-xs font-medium mb-1">User</label>
+								<label for="team-user" class="block text-xs font-medium mb-1">User</label>
 								<select
+									id="team-user"
 									bind:value={selectedUser}
 									class="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
 								>
@@ -256,8 +260,9 @@
 								</select>
 							</div>
 							<div>
-								<label class="block text-xs font-medium mb-1">Team</label>
+								<label for="team-select" class="block text-xs font-medium mb-1">Team</label>
 								<select
+									id="team-select"
 									bind:value={selectedTeam}
 									class="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
 								>

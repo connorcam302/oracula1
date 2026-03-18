@@ -3,7 +3,7 @@ import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {

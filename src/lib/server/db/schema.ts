@@ -14,7 +14,10 @@ import {
 export const users = pgTable('users', {
 	id: text('id').primaryKey(),
 	username: varchar('username', { length: 100 }).notNull().unique(),
+	name: text('name'),
 	email: varchar('email', { length: 255 }),
+	emailVerified: timestamp('email_verified'),
+	image: text('image'),
 	passwordHash: text('password_hash'),
 	avatarUrl: text('avatar_url'),
 	googleId: text('google_id').unique(),
