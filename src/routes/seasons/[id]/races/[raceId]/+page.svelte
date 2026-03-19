@@ -70,10 +70,16 @@
 
 	function getPositionColor(pos: number | null, dnf: boolean): string {
 		if (dnf) return 'text-destructive';
-		if (pos === 1) return 'text-yellow-500';
-		if (pos === 2) return 'text-gray-400';
-		if (pos === 3) return 'text-amber-700';
+		if (pos === 1) return 'text-gold font-extrabold';
+		if (pos === 2) return 'text-[#B5C0C8] font-bold';
+		if (pos === 3) return 'text-amber-600 font-bold';
 		return 'text-foreground';
+	}
+
+	function getRowHighlight(pos: number | null, dnf: boolean): string {
+		if (dnf) return 'bg-destructive/5';
+		if (pos === 1) return 'bg-gold/5';
+		return '';
 	}
 </script>
 
@@ -98,7 +104,7 @@
 		</div>
 		<div class="flex items-center gap-2">
 			{#if data.race.isCompleted}
-				<Badge variant="default">
+				<Badge variant="success">
 					<CheckCircle class="h-3 w-3 mr-1" />
 					Completed
 				</Badge>
@@ -190,49 +196,63 @@
 					if (a.position === null) return 1;
 					if (b.position === null) return -1;
 					return a.position - b.position;
-				}) as result, i}
+				}) as result}
 					<div
-						class="flex items-center gap-3 rounded-lg p-3 hover:bg-accent/50 transition-colors"
+						class="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-accent {getRowHighlight(result.position, result.dnf)}"
 					>
-						<!-- Position -->
-						<div class="w-12 text-center">
-							<span class="text-lg font-bold {getPositionColor(result.position, result.dnf)}">
-								{formatPosition(result.position, result.dnf)}
-							</span>
+						<!-- Position badge -->
+						<div class="w-10 text-center shrink-0">
+							{#if !result.dnf && result.position === 1}
+								<span class="flex h-8 w-8 mx-auto items-center justify-center rounded-full bg-gold/15 text-base font-extrabold text-gold">
+									{formatPosition(result.position, result.dnf)}
+								</span>
+							{:else if !result.dnf && result.position === 2}
+								<span class="flex h-8 w-8 mx-auto items-center justify-center rounded-full bg-[#B5C0C8]/20 text-base font-bold text-[#B5C0C8]">
+									{formatPosition(result.position, result.dnf)}
+								</span>
+							{:else if !result.dnf && result.position === 3}
+								<span class="flex h-8 w-8 mx-auto items-center justify-center rounded-full bg-amber-700/15 text-base font-bold text-amber-600">
+									{formatPosition(result.position, result.dnf)}
+								</span>
+							{:else}
+								<span class="text-base font-bold {getPositionColor(result.position, result.dnf)}">
+									{formatPosition(result.position, result.dnf)}
+								</span>
+							{/if}
 						</div>
 
 						<!-- Team Color Bar -->
 						{#if result.teamColor}
-							<div class="w-1 h-10 rounded-full" style="background-color: {result.teamColor}"></div>
+							<div class="w-1 h-10 rounded-full shrink-0" style="background-color: {result.teamColor}"></div>
 						{/if}
 
 						<!-- Driver Info -->
-						<Avatar src={result.avatarUrl} fallback={result.username} class="h-8 w-8" />
-						<div class="flex-1">
-							<a href="/profile/{result.userId}" class="font-medium text-sm hover:underline">
+						<Avatar src={result.avatarUrl} fallback={result.username} class="h-8 w-8 shrink-0" />
+						<div class="flex-1 min-w-0">
+							<a href="/profile/{result.userId}" class="font-medium text-sm hover:underline truncate block">
 								{result.username}
 							</a>
 							{#if result.teamName}
-								<p class="text-xs text-muted-foreground">{result.teamName}</p>
+								<p class="text-xs text-muted-foreground truncate">{result.teamName}</p>
 							{/if}
 						</div>
 
 						<!-- Points -->
-						<div class="text-right">
+						<div class="text-right shrink-0">
 							{#if result.dnf}
 								<Badge variant="destructive" class="text-xs">
 									<XCircle class="h-3 w-3 mr-1" />
 									DNF
 								</Badge>
 							{:else}
-								<span class="text-sm font-bold">{result.points} pts</span>
+								<span class="text-sm font-bold tabular-nums {result.position === 1 ? 'text-gold' : ''}">{result.points} pts</span>
 							{/if}
 						</div>
 
 						<!-- Delete -->
 						<button
 							onclick={() => deleteResult(result.id)}
-							class="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+							class="shrink-0 rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
 						>
 							<XCircle class="h-4 w-4" />
 						</button>
@@ -241,7 +261,7 @@
 
 				{#if data.results.length === 0}
 					<div class="text-center py-12">
-						<Trophy class="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+						<Trophy class="h-10 w-10 text-gold/40 mx-auto mb-3" />
 						<p class="text-muted-foreground">No results recorded yet</p>
 						<p class="text-sm text-muted-foreground mt-1">
 							Add driver results to record this race

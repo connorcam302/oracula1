@@ -23,13 +23,15 @@
 
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each data.seasons as season}
+			{@const isComplete = Number(season.completedRaces) === Number(season.raceCount) && Number(season.raceCount) > 0}
+			{@const inProgress = Number(season.completedRaces) > 0 && !isComplete}
 			<a href="/seasons/{season.id}" class="group">
-				<Card class="transition-shadow hover:shadow-md">
+				<Card class="transition-all hover:shadow-md {isComplete ? 'border-gold/30' : inProgress ? 'border-blue/20' : ''}">
 					<CardHeader>
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-3">
-								<div class="rounded-lg bg-primary/10 p-2">
-									<Trophy class="h-5 w-5 text-primary" />
+								<div class="rounded-lg p-2 {isComplete ? 'bg-gold/10' : inProgress ? 'bg-blue/10' : 'bg-primary/10'}">
+									<Trophy class="h-5 w-5 {isComplete ? 'text-gold' : inProgress ? 'text-blue' : 'text-primary'}" />
 								</div>
 								<div>
 									<CardTitle class="text-lg">{season.name}</CardTitle>
@@ -46,10 +48,10 @@
 							<Badge variant="secondary">
 								{season.completedRaces}/{season.raceCount} races
 							</Badge>
-							{#if Number(season.completedRaces) === Number(season.raceCount) && Number(season.raceCount) > 0}
-								<Badge variant="default">Complete</Badge>
-							{:else if Number(season.completedRaces) > 0}
-								<Badge variant="outline">In Progress</Badge>
+							{#if isComplete}
+								<Badge variant="gold">Complete</Badge>
+							{:else if inProgress}
+								<Badge variant="blue">In Progress</Badge>
 							{/if}
 						</div>
 					</CardContent>
@@ -59,7 +61,7 @@
 
 		{#if data.seasons.length === 0}
 			<div class="col-span-full text-center py-12">
-				<Trophy class="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+				<Trophy class="h-12 w-12 text-gold/50 mx-auto mb-4" />
 				<p class="text-lg font-medium text-muted-foreground">No seasons yet</p>
 				<p class="text-sm text-muted-foreground mt-1">Create your first season to get started</p>
 				<a href="/seasons/create" class="mt-4 inline-block">

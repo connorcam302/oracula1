@@ -8,7 +8,13 @@ const badgeVariants = tv({
 			default: 'border-transparent bg-primary text-primary-foreground shadow',
 			secondary: 'border-transparent bg-secondary text-secondary-foreground',
 			destructive: 'border-transparent bg-destructive text-destructive-foreground shadow',
-			outline: 'text-foreground'
+			outline: 'text-foreground border-border',
+			/** Championship Gold — P1, completed, champion moments */
+			gold: 'border-transparent bg-gold text-gold-foreground shadow',
+			/** Data Blue — in-progress, info states */
+			blue: 'border-transparent bg-blue text-blue-foreground shadow',
+			/** Success green — confirmed, active, verified */
+			success: 'border-transparent bg-success text-success-foreground shadow'
 		}
 	},
 	defaultVariants: {

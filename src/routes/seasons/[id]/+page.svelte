@@ -160,51 +160,51 @@
 						</div>
 					{/if}
 
-					<div class="space-y-2">
-						{#each data.races as race}
-							<div
-								class="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-accent/50 transition-colors"
+				<div class="space-y-2">
+					{#each data.races as race}
+						<div
+							class="flex items-center justify-between rounded-lg border p-3 hover:bg-accent transition-colors {race.isCompleted ? 'border-success/20 bg-success/5 hover:bg-success/10' : 'border-border'}"
+						>
+							<a
+								href="/seasons/{data.season.id}/races/{race.id}"
+								class="flex-1 flex items-center gap-3"
 							>
-								<a
-									href="/seasons/{data.season.id}/races/{race.id}"
-									class="flex-1 flex items-center gap-3"
+								<span
+									class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold {race.isCompleted ? 'bg-success/15 text-success' : 'bg-muted text-muted-foreground'}"
 								>
-									<span
-										class="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-bold"
-									>
-										R{race.roundNumber}
+									R{race.roundNumber}
+								</span>
+								<div class="flex-1 min-w-0">
+									<p class="font-medium text-sm truncate">{race.trackName}</p>
+									<p class="text-xs text-muted-foreground">{race.trackCountry}</p>
+								</div>
+								{#if race.scheduledDate}
+									<span class="text-xs text-muted-foreground mr-2 shrink-0">
+										{race.scheduledDate}
 									</span>
-									<div>
-										<p class="font-medium text-sm">{race.trackName}</p>
-										<p class="text-xs text-muted-foreground">{race.trackCountry}</p>
-									</div>
-									{#if race.scheduledDate}
-										<span class="text-xs text-muted-foreground ml-auto mr-4">
-											{race.scheduledDate}
-										</span>
-									{/if}
-									{#if race.isCompleted}
-										<Badge variant="default" class="text-xs">Completed</Badge>
-									{:else}
-										<Badge variant="outline" class="text-xs">Upcoming</Badge>
-									{/if}
-								</a>
-								<button
-									onclick={() => deleteRace(race.id)}
-									class="ml-2 rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-								>
-									<Trash2 class="h-4 w-4" />
-								</button>
-							</div>
-						{/each}
+								{/if}
+								{#if race.isCompleted}
+									<Badge variant="success" class="text-xs shrink-0">Completed</Badge>
+								{:else}
+									<Badge variant="outline" class="text-xs shrink-0">Upcoming</Badge>
+								{/if}
+							</a>
+							<button
+								onclick={() => deleteRace(race.id)}
+								class="ml-2 shrink-0 rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+							>
+								<Trash2 class="h-4 w-4" />
+							</button>
+						</div>
+					{/each}
 
-						{#if data.races.length === 0}
-							<div class="text-center py-8">
-								<Flag class="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-								<p class="text-sm text-muted-foreground">No races added yet</p>
-							</div>
-						{/if}
-					</div>
+					{#if data.races.length === 0}
+						<div class="text-center py-8">
+							<Flag class="h-8 w-8 text-primary/40 mx-auto mb-2" />
+							<p class="text-sm text-muted-foreground">No races added yet</p>
+						</div>
+					{/if}
+				</div>
 
 					<!-- Pagination -->
 					{#if data.totalPages > 1}

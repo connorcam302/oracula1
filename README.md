@@ -40,3 +40,40 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Deployment
+
+### Docker
+
+```sh
+docker compose up -d
+```
+
+The app runs on port `3000` by default. To use a different port:
+
+```sh
+PORT=8080 docker compose up -d
+```
+
+To set a custom public origin (e.g. a domain):
+
+```sh
+PORT=8080 ORIGIN=https://oracula.example.com docker compose up -d
+```
+
+Or set these in a `.env` file alongside `docker-compose.yml`:
+
+```
+PORT=8080
+ORIGIN=https://oracula.example.com
+```
+
+### Seeding the database
+
+With the stack running, exec into the app container and run the seed script:
+
+```sh
+docker compose exec app npx tsx scripts/seed.ts
+```
+
+This works because the image includes `node_modules` (including `tsx`), and the container already has `DATABASE_URL` set to point at the `db` service.

@@ -2,6 +2,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Metric-matched fallbacks to minimise layout shift ── */
+@font-face {
+	font-family: 'Barlow-Fallback';
+	src: local('Arial');
+	size-adjust: 100%;
+	ascent-override: 90%;
+	descent-override: 22%;
+	line-gap-override: 0%;
+}
+@font-face {
+	font-family: 'BarlowCondensed-Fallback';
+	src: local('Arial Narrow'), local('Arial');
+	size-adjust: 88%;
+	ascent-override: 92%;
+	descent-override: 20%;
+	line-gap-override: 0%;
+}
+
 :root {
 	--background: 0 0% 100%;
 	--foreground: 0 0% 9%;
@@ -12,63 +30,89 @@
 	/* F1 red: #E10600 */
 	--primary: 354.1 94.4% 44.3%;
 	--primary-foreground: 0 0% 100%;
-	--secondary: 0 0% 95%;
+	--secondary: 30 20% 94%;
 	--secondary-foreground: 0 0% 9%;
-	--muted: 0 0% 95%;
-	--muted-foreground: 0 0% 45%;
-	--accent: 0 0% 93%;
+	--muted: 30 15% 95%;
+	--muted-foreground: 0 0% 42%;
+	--accent: 30 12% 92%;
 	--accent-foreground: 0 0% 9%;
 	--destructive: 0 84.2% 60.2%;
 	--destructive-foreground: 0 0% 100%;
-	--border: 0 0% 89%;
-	--input: 0 0% 89%;
+	--border: 30 10% 88%;
+	--input: 30 10% 88%;
 	--ring: 354.1 94.4% 44.3%;
 	--radius: 0.5rem;
+
+	/* Championship Gold: #F5C518-range */
+	--gold: 45 92% 47%;
+	--gold-foreground: 0 0% 100%;
+	/* Data Blue: electric sky blue */
+	--blue: 210 90% 50%;
+	--blue-foreground: 0 0% 100%;
+	/* Success: emerald green */
+	--success: 158 64% 38%;
+	--success-foreground: 0 0% 100%;
+
 	/* Sidebar: light warm off-white */
-	--sidebar-background: 0 0% 98%;
+	--sidebar-background: 30 15% 98%;
 	--sidebar-foreground: 0 0% 15%;
 	--sidebar-primary: 354.1 94.4% 44.3%;
 	--sidebar-primary-foreground: 0 0% 100%;
-	--sidebar-accent: 0 0% 93%;
+	--sidebar-accent: 30 12% 92%;
 	--sidebar-accent-foreground: 0 0% 9%;
-	--sidebar-border: 0 0% 89%;
+	--sidebar-border: 30 10% 88%;
 	--sidebar-ring: 354.1 94.4% 44.3%;
 }
 
 .dark {
-	/* Carbon dark: #1a1a1a-ish */
-	--background: 0 0% 8%;
-	--foreground: 0 0% 95%;
-	--card: 0 0% 11%;
-	--card-foreground: 0 0% 95%;
-	--popover: 0 0% 11%;
-	--popover-foreground: 0 0% 95%;
+	/* Carbon dark: #1a1a1a-ish, very slight warm tint */
+	--background: 20 5% 8%;
+	--foreground: 30 8% 95%;
+	--card: 20 5% 11%;
+	--card-foreground: 30 8% 95%;
+	--popover: 20 5% 11%;
+	--popover-foreground: 30 8% 95%;
 	/* F1 red stays vivid in dark mode */
 	--primary: 354.1 94.4% 44.3%;
 	--primary-foreground: 0 0% 100%;
-	--secondary: 0 0% 16%;
-	--secondary-foreground: 0 0% 95%;
-	--muted: 0 0% 16%;
-	--muted-foreground: 0 0% 55%;
-	--accent: 0 0% 18%;
-	--accent-foreground: 0 0% 95%;
+	--secondary: 20 5% 16%;
+	--secondary-foreground: 30 8% 90%;
+	--muted: 20 5% 16%;
+	--muted-foreground: 30 5% 55%;
+	--accent: 20 5% 19%;
+	--accent-foreground: 30 8% 95%;
 	--destructive: 0 72% 51%;
 	--destructive-foreground: 0 0% 100%;
-	--border: 0 0% 18%;
-	--input: 0 0% 18%;
+	--border: 20 5% 19%;
+	--input: 20 5% 19%;
 	--ring: 354.1 94.4% 44.3%;
-	/* Sidebar: slightly lighter carbon */
-	--sidebar-background: 0 0% 6%;
-	--sidebar-foreground: 0 0% 90%;
+
+	/* Championship Gold — slightly desaturated in dark mode */
+	--gold: 45 88% 50%;
+	--gold-foreground: 20 5% 8%;
+	/* Data Blue — slightly brighter in dark mode */
+	--blue: 210 90% 60%;
+	--blue-foreground: 0 0% 100%;
+	/* Success green */
+	--success: 158 60% 42%;
+	--success-foreground: 0 0% 100%;
+
+	/* Sidebar: slightly lighter carbon, warm-tinted */
+	--sidebar-background: 20 6% 6%;
+	--sidebar-foreground: 30 6% 88%;
 	--sidebar-primary: 354.1 94.4% 44.3%;
 	--sidebar-primary-foreground: 0 0% 100%;
-	--sidebar-accent: 0 0% 14%;
-	--sidebar-accent-foreground: 0 0% 95%;
-	--sidebar-border: 0 0% 14%;
+	--sidebar-accent: 20 5% 14%;
+	--sidebar-accent-foreground: 30 8% 95%;
+	--sidebar-border: 20 5% 14%;
 	--sidebar-ring: 354.1 94.4% 44.3%;
 }
 
 @theme inline {
+	/* ── Font families ── */
+	--font-sans: 'Barlow', 'Barlow-Fallback', system-ui, sans-serif;
+	--font-display: 'Barlow Condensed', 'BarlowCondensed-Fallback', system-ui, sans-serif;
+
 	--color-background: hsl(var(--background));
 	--color-foreground: hsl(var(--foreground));
 	--color-card: hsl(var(--card));
@@ -88,6 +132,12 @@
 	--color-border: hsl(var(--border));
 	--color-input: hsl(var(--input));
 	--color-ring: hsl(var(--ring));
+	--color-gold: hsl(var(--gold));
+	--color-gold-foreground: hsl(var(--gold-foreground));
+	--color-blue: hsl(var(--blue));
+	--color-blue-foreground: hsl(var(--blue-foreground));
+	--color-success: hsl(var(--success));
+	--color-success-foreground: hsl(var(--success-foreground));
 	--color-sidebar-background: hsl(var(--sidebar-background));
 	--color-sidebar-foreground: hsl(var(--sidebar-foreground));
 	--color-sidebar-primary: hsl(var(--sidebar-primary));
@@ -108,5 +158,35 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		line-height: 1.6;
+		font-kerning: normal;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
+	}
+
+	/* Tighter leading for dark-mode is handled via the line-height bump above */
+
+	h1, h2, h3, h4, h5, h6 {
+		font-family: var(--font-display);
+		line-height: 1.1;
+		letter-spacing: -0.01em;
+	}
+
+	/* Tabular numbers everywhere figures appear together */
+	.tabular-nums,
+	[class*='pts'],
+	td,
+	th {
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+/* ── Display / condensed font utility ── */
+@layer utilities {
+	.font-display {
+		font-family: var(--font-display);
 	}
 }

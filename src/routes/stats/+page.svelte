@@ -21,11 +21,20 @@
 		}
 	}
 
-	// Prepare chart data
+	// Prepare chart data — F1-inspired, visually distinct palette
 	const DRIVER_COLORS = [
-		'#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-		'#FF9F40', '#FF6384', '#C9CBCF', '#7BC8F6', '#0EAD69',
-		'#DD3497', '#8856a7'
+		'#E10600', // F1 Red
+		'#1E90FF', // Electric Blue
+		'#F5C518', // Championship Gold
+		'#27F4D2', // Mercedes Teal
+		'#FF8700', // McLaren Orange
+		'#229971', // Aston Martin Green
+		'#FF87BC', // Alpine Pink
+		'#6692FF', // AlphaTauri Blue
+		'#DC143C', // Ferrari Crimson
+		'#B5C0C8', // Silver
+		'#7CDB8A', // Mint
+		'#FFA07A'  // Salmon
 	];
 
 	function buildCumulativePointsData() {
@@ -167,7 +176,7 @@
 		<Card>
 			<CardHeader>
 				<div class="flex items-center gap-2">
-					<Trophy class="h-5 w-5 text-yellow-500" />
+					<Trophy class="h-5 w-5 text-gold" />
 					<CardTitle>Driver Standings</CardTitle>
 				</div>
 			</CardHeader>
@@ -176,13 +185,13 @@
 					{#each data.driverStandings as driver, i}
 						<a
 							href="/profile/{driver.userId}"
-							class="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/50 transition-colors"
+							class="flex items-center gap-3 rounded-lg p-2 hover:bg-accent transition-colors {i === 0 ? 'bg-gold/5' : ''}"
 						>
 							<span
-								class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold {i === 0
-									? 'bg-yellow-500 text-white'
+								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold {i === 0
+									? 'bg-gold text-gold-foreground'
 									: i === 1
-										? 'bg-gray-400 text-white'
+										? 'bg-[#B5C0C8] text-[#1a1a1a]'
 										: i === 2
 											? 'bg-amber-700 text-white'
 											: 'bg-muted text-muted-foreground'}"
@@ -190,13 +199,19 @@
 								{i + 1}
 							</span>
 							<Avatar src={driver.avatarUrl} fallback={driver.username} class="h-8 w-8" />
-							<div class="flex-1">
-								<p class="text-sm font-medium">{driver.username}</p>
+							<div class="flex-1 min-w-0">
+								<p class="text-sm font-medium truncate">{driver.username}</p>
 								<p class="text-xs text-muted-foreground">
-									{driver.wins}W {driver.podiums}P {driver.dnfs}D &middot; {driver.totalRaces} races
+									<span class="text-yellow-500 font-medium">{driver.wins}W</span>
+									<span class="mx-0.5 text-muted-foreground/40">·</span>
+									<span class="text-amber-500 font-medium">{driver.podiums}P</span>
+									<span class="mx-0.5 text-muted-foreground/40">·</span>
+									<span class="text-destructive font-medium">{driver.dnfs}D</span>
+									<span class="mx-0.5 text-muted-foreground/40">·</span>
+									{driver.totalRaces} races
 								</p>
 							</div>
-							<span class="text-sm font-bold">{driver.totalPoints} pts</span>
+							<span class="text-sm font-bold tabular-nums">{driver.totalPoints} pts</span>
 						</a>
 					{/each}
 				</div>
@@ -207,19 +222,19 @@
 		<Card>
 			<CardHeader>
 				<div class="flex items-center gap-2">
-					<Users class="h-5 w-5 text-primary" />
+					<Users class="h-5 w-5 text-blue" />
 					<CardTitle>Constructor Standings</CardTitle>
 				</div>
 			</CardHeader>
 			<CardContent>
-				<div class="space-y-2">
+				<div class="space-y-1">
 					{#each data.constructorStandings as team, i}
-						<div class="flex items-center gap-3 rounded-lg p-2">
+						<div class="flex items-center gap-3 rounded-lg p-2 {i === 0 ? 'bg-gold/5' : ''}">
 							<span
-								class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold {i === 0
-									? 'bg-yellow-500 text-white'
+								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold {i === 0
+									? 'bg-gold text-gold-foreground'
 									: i === 1
-										? 'bg-gray-400 text-white'
+										? 'bg-[#B5C0C8] text-[#1a1a1a]'
 										: i === 2
 											? 'bg-amber-700 text-white'
 											: 'bg-muted text-muted-foreground'}"
@@ -227,14 +242,14 @@
 								{i + 1}
 							</span>
 							<div
-								class="h-6 w-6 rounded-full"
+								class="h-7 w-7 rounded-full shrink-0 ring-2 ring-border"
 								style="background-color: {team.teamColor}"
 							></div>
-							<div class="flex-1">
-								<p class="text-sm font-medium">{team.teamName}</p>
+							<div class="flex-1 min-w-0">
+								<p class="text-sm font-medium truncate">{team.teamName}</p>
 								<p class="text-xs text-muted-foreground">{team.totalRaces} entries</p>
 							</div>
-							<span class="text-sm font-bold">{team.totalPoints} pts</span>
+							<span class="text-sm font-bold tabular-nums">{team.totalPoints} pts</span>
 						</div>
 					{/each}
 				</div>
