@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Avatar } from '$lib/components/ui/avatar';
+	import { Tooltip, TooltipTrigger, TooltipContent } from '$lib/components/ui/tooltip';
 	import { formatPosition, getPoints } from '$lib/points';
 	import { ArrowLeft, Plus, Trophy, CheckCircle, XCircle } from 'lucide-svelte';
 
@@ -223,7 +224,14 @@
 
 						<!-- Team Color Bar -->
 						{#if result.teamColor}
-							<div class="w-1 h-10 rounded-full shrink-0" style="background-color: {result.teamColor}"></div>
+							<Tooltip>
+								<TooltipTrigger>
+									<div class="w-1 h-10 rounded-full shrink-0" style="background-color: {result.teamColor}"></div>
+								</TooltipTrigger>
+								<TooltipContent>
+									{result.teamName}
+								</TooltipContent>
+							</Tooltip>
 						{/if}
 
 						<!-- Driver Info -->

@@ -14,28 +14,49 @@
         LogOut,
         ChevronLeft,
         ChevronRight,
-        Flag,
-        Users,
+        ChevronDown,
         UserCheck,
+        Plus,
+        Users,
+        TrendingUp,
+        Flag,
+        CircleDot,
     } from "lucide-svelte";
+
+    interface SidebarSeason {
+        id: number;
+        name: string;
+        year: number;
+        completedRaces: number;
+        totalRaces: number;
+    }
 
     interface Props {
         collapsed?: boolean;
         session?: any;
+        seasons?: SidebarSeason[];
     }
 
-    let { collapsed = $bindable(false), session }: Props = $props();
+    let { collapsed = $bindable(false), session, seasons = [] }: Props = $props();
 
-    const navItems = [
-        { href: "/", label: "Home", icon: Home },
-        { href: "/seasons", label: "Seasons", icon: Trophy },
-        { href: "/stats", label: "Stats", icon: BarChart3 },
-        { href: "/profile", label: "Profile", icon: User },
-    ];
+    // ── Collapsible section state ──────────────────────────
+    let seasonsOpen = $state(true);
+    let statsOpen = $state(true);
 
     function isActive(href: string, pathname: string) {
         if (href === "/") return pathname === "/";
+        return pathname === href;
+    }
+
+    function isActivePrefix(href: string, pathname: string) {
         return pathname.startsWith(href);
+    }
+
+    // Determine if a season is currently in progress
+    function seasonStatus(s: SidebarSeason): 'complete' | 'active' | 'empty' {
+        if (s.totalRaces > 0 && s.completedRaces === s.totalRaces) return 'complete';
+        if (s.completedRaces > 0) return 'active';
+        return 'empty';
     }
 </script>
 
@@ -65,26 +86,191 @@
     <Separator />
 
     <!-- Navigation -->
-    <nav class="flex-1 space-y-1 p-2">
-        {#each navItems as item}
-            {@const Icon = item.icon}
+    <nav class="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 space-y-0.5">
+        <!-- Home -->
+        <a
+            href="/"
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActive(
+                '/',
+                $page.url.pathname,
+            )
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
+                ? 'justify-center'
+                : ''}"
+        >
+            <Home class="h-4 w-4 shrink-0" />
+            {#if !collapsed}
+                <span>Home</span>
+            {/if}
+        </a>
+
+        <!-- ── Seasons section ──────────────────────────────── -->
+        {#if collapsed}
             <a
-                href={item.href}
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActive(
-                    item.href,
+                href="/seasons"
+                class="flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActivePrefix(
+                    '/seasons',
                     $page.url.pathname,
                 )
                     ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
-                    ? 'justify-center'
-                    : ''}"
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
             >
-                <Icon class="h-4 w-4 shrink-0" />
-                {#if !collapsed}
-                    <span>{item.label}</span>
-                {/if}
+                <Trophy class="h-4 w-4 shrink-0" />
             </a>
-        {/each}
+        {:else}
+            <!-- Section header -->
+            <button
+                onclick={() => (seasonsOpen = !seasonsOpen)}
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActivePrefix(
+                    '/seasons',
+                    $page.url.pathname,
+                ) && !seasonsOpen
+                    ? 'text-sidebar-primary'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+            >
+                <Trophy class="h-4 w-4 shrink-0" />
+                <span class="flex-1 text-left">Seasons</span>
+                <ChevronDown
+                    class="h-3.5 w-3.5 shrink-0 transition-transform duration-200 {seasonsOpen
+                        ? ''
+                        : '-rotate-90'}"
+                />
+            </button>
+
+            <!-- Season sub-links -->
+            {#if seasonsOpen}
+                <div class="ml-4 border-l border-sidebar-border pl-2 space-y-0.5">
+                    <!-- All Seasons link -->
+                    <a
+                        href="/seasons"
+                        class="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {isActive(
+                            '/seasons',
+                            $page.url.pathname,
+                        )
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                            : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+                    >
+                        <Flag class="h-3 w-3 shrink-0" />
+                        <span>All Seasons</span>
+                    </a>
+
+                    <!-- Individual seasons -->
+                    {#each seasons as season}
+                        {@const status = seasonStatus(season)}
+                        {@const isSeasonActive = $page.url.pathname.startsWith(`/seasons/${season.id}`)}
+                        <a
+                            href="/seasons/{season.id}"
+                            class="group flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {isSeasonActive
+                                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+                        >
+                            <CircleDot
+                                class="h-3 w-3 shrink-0 {status === 'complete'
+                                    ? 'text-gold'
+                                    : status === 'active'
+                                        ? 'text-blue'
+                                        : 'text-muted-foreground/50'}"
+                            />
+                            <span class="flex-1 truncate">{season.name}</span>
+                            <span class="font-display text-[10px] tabular-nums text-muted-foreground/60">
+                                {season.completedRaces}/{season.totalRaces}
+                            </span>
+                        </a>
+                    {/each}
+
+                    <!-- New Season link -->
+                    <a
+                        href="/seasons/create"
+                        class="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {isActive(
+                            '/seasons/create',
+                            $page.url.pathname,
+                        )
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                            : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+                    >
+                        <Plus class="h-3 w-3 shrink-0" />
+                        <span>New Season</span>
+                    </a>
+                </div>
+            {/if}
+        {/if}
+
+        <!-- ── Stats section ────────────────────────────────── -->
+        {#if collapsed}
+            <a
+                href="/stats"
+                class="flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActivePrefix(
+                    '/stats',
+                    $page.url.pathname,
+                )
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+            >
+                <BarChart3 class="h-4 w-4 shrink-0" />
+            </a>
+        {:else}
+            <button
+                onclick={() => (statsOpen = !statsOpen)}
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActivePrefix(
+                    '/stats',
+                    $page.url.pathname,
+                ) && !statsOpen
+                    ? 'text-sidebar-primary'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+            >
+                <BarChart3 class="h-4 w-4 shrink-0" />
+                <span class="flex-1 text-left">Stats</span>
+                <ChevronDown
+                    class="h-3.5 w-3.5 shrink-0 transition-transform duration-200 {statsOpen
+                        ? ''
+                        : '-rotate-90'}"
+                />
+            </button>
+
+            {#if statsOpen}
+                <div class="ml-4 border-l border-sidebar-border pl-2 space-y-0.5">
+                    <a
+                        href="/stats"
+                        class="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {isActive(
+                            '/stats',
+                            $page.url.pathname,
+                        ) && !$page.url.searchParams.has('season')
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                            : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+                    >
+                        <TrendingUp class="h-3 w-3 shrink-0" />
+                        <span>Drivers</span>
+                    </a>
+                    <a
+                        href="/stats"
+                        class="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    >
+                        <Users class="h-3 w-3 shrink-0" />
+                        <span>Constructors</span>
+                    </a>
+                </div>
+            {/if}
+        {/if}
+
+        <!-- Profile -->
+        <a
+            href="/profile"
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActivePrefix(
+                '/profile',
+                $page.url.pathname,
+            )
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
+                ? 'justify-center'
+                : ''}"
+        >
+            <User class="h-4 w-4 shrink-0" />
+            {#if !collapsed}
+                <span>Profile</span>
+            {/if}
+        </a>
+
         <!-- Claim Profile link (only when signed in) -->
         {#if session?.user}
             <a
@@ -98,7 +284,7 @@
                     ? 'justify-center'
                     : ''}"
             >
-                <UserCheck class="h-5 w-5 shrink-0" />
+                <UserCheck class="h-4 w-4 shrink-0" />
                 {#if !collapsed}
                     <span>Claim Profile</span>
                 {/if}
@@ -138,7 +324,7 @@
                     ? 'justify-center'
                     : ''}"
             >
-                <LogOut class="h-5 w-5 shrink-0" />
+                <LogOut class="h-4 w-4 shrink-0" />
                 {#if !collapsed}
                     <span>Sign Out</span>
                 {/if}
@@ -150,7 +336,7 @@
                     ? 'justify-center'
                     : ''}"
             >
-                <LogIn class="h-5 w-5 shrink-0" />
+                <LogIn class="h-4 w-4 shrink-0" />
                 {#if !collapsed}
                     <span>Sign In</span>
                 {/if}

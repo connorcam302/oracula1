@@ -4,6 +4,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Avatar } from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
+	import { Tooltip, TooltipTrigger, TooltipContent } from '$lib/components/ui/tooltip';
 	import { formatPosition } from '$lib/points';
 	import { Trophy, Flag, Medal, Skull, TrendingUp, Star, ArrowLeft, Pencil, Check, X } from 'lucide-svelte';
 
@@ -44,11 +45,17 @@
 
 	// ── Filter / sort ─────────────────────────────────────
 	let filterSeason = $state('');
+	let filterTrack = $state('');
 	let sortBy = $state<'date' | 'position' | 'points'>('date');
 	let sortDir = $state<'asc' | 'desc'>('desc');
 
 	const allSeasons = $derived(
 		[...new Map(data.results.map((r: any) => [r.seasonId, r.seasonName])).entries()]
+	);
+
+	const allTracks = $derived(
+		[...new Map(data.results.map((r: any) => [r.trackId, r.trackName])).entries()]
+			.sort((a, b) => String(a[1]).localeCompare(String(b[1])))
 	);
 
 	const filteredResults = $derived(
@@ -59,12 +66,25 @@
 				list = list.filter((r: any) => String(r.seasonId) === filterSeason);
 			}
 
+			if (filterTrack) {
+				list = list.filter((r: any) => String(r.trackId) === filterTrack);
+			}
+
 			list.sort((a: any, b: any) => {
 				let cmp = 0;
 				if (sortBy === 'date') {
-					const ad = a.scheduledDate ?? '';
-					const bd = b.scheduledDate ?? '';
-					cmp = ad < bd ? -1 : ad > bd ? 1 : 0;
+					// Use scheduledDate if both have one, otherwise fall back to
+					// season year + round number as a chronological proxy
+					if (a.scheduledDate && b.scheduledDate) {
+						cmp = a.scheduledDate < b.scheduledDate ? -1 : a.scheduledDate > b.scheduledDate ? 1 : 0;
+					} else if (a.scheduledDate && !b.scheduledDate) {
+						cmp = -1;
+					} else if (!a.scheduledDate && b.scheduledDate) {
+						cmp = 1;
+					} else {
+						// Both null — sort by season year desc, then round number desc
+						cmp = a.seasonYear - b.seasonYear || a.roundNumber - b.roundNumber;
+					}
 				} else if (sortBy === 'position') {
 					// DNFs go last, nulls go last
 					const ap = a.dnf ? 999 : (a.position ?? 998);
@@ -248,6 +268,17 @@
 						{/each}
 					</select>
 
+					<!-- Track filter -->
+					<select
+						bind:value={filterTrack}
+						class="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
+					>
+						<option value="">All Tracks</option>
+						{#each allTracks as [id, name]}
+							<option value={String(id)}>{name}</option>
+						{/each}
+					</select>
+
 					<!-- Sort buttons -->
 					<button
 						onclick={() => toggleSort('date')}
@@ -300,7 +331,14 @@
 
 						<!-- Team color -->
 						{#if result.teamColor}
-							<div class="w-1 h-8 rounded-full shrink-0" style="background-color: {result.teamColor}"></div>
+							<Tooltip>
+								<TooltipTrigger>
+									<div class="w-1 h-8 rounded-full shrink-0" style="background-color: {result.teamColor}"></div>
+								</TooltipTrigger>
+								<TooltipContent>
+									{result.teamName}
+								</TooltipContent>
+							</Tooltip>
 						{/if}
 
 						<!-- Race info -->
@@ -325,7 +363,7 @@
 					<div class="text-center py-12">
 						<Flag class="h-10 w-10 text-primary/30 mx-auto mb-3" />
 						<p class="text-muted-foreground">
-							{filterSeason ? 'No results for this season' : 'No race results yet'}
+							{filterSeason || filterTrack ? 'No results match the selected filters' : 'No race results yet'}
 						</p>
 					</div>
 				{/if}

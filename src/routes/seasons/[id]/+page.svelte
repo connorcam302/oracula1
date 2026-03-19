@@ -5,6 +5,8 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Avatar } from '$lib/components/ui/avatar';
 	import { Separator } from '$lib/components/ui/separator';
+	import { Tooltip, TooltipTrigger, TooltipContent } from '$lib/components/ui/tooltip';
+	import LineChart from '$lib/components/charts/line-chart.svelte';
 	import {
 		ArrowLeft,
 		Plus,
@@ -13,10 +15,72 @@
 		ChevronLeft,
 		ChevronRight,
 		Users,
-		UserPlus
+		UserPlus,
+		Trophy,
+		TrendingUp
 	} from 'lucide-svelte';
 
 	let { data } = $props();
+
+	// Driver colors for charts - F1-inspired palette
+	const DRIVER_COLORS = [
+		'#E10600',
+		'#1E90FF',
+		'#F5C518',
+		'#27F4D2',
+		'#FF8700',
+		'#229971',
+		'#FF87BC',
+		'#6692FF',
+		'#DC143C',
+		'#B5C0C8',
+		'#7CDB8A',
+		'#FFA07A'
+	];
+
+	// Build cumulative points chart data
+	function buildCumulativeData() {
+		if (!data.pointsPerRace.length) return { labels: [], datasets: [] };
+
+		const labels = data.pointsPerRace.map((r: any) => `R${r.round}`);
+
+		const driverMap = new Map<string, { username: string; points: number[] }>();
+
+		for (let i = 0; i < data.pointsPerRace.length; i++) {
+			const race = data.pointsPerRace[i];
+			for (const result of race.results) {
+				if (!driverMap.has(result.userId)) {
+					driverMap.set(result.userId, {
+						username: result.username,
+						points: new Array(data.pointsPerRace.length).fill(0)
+					});
+				}
+				const driver = driverMap.get(result.userId)!;
+				driver.points[i] = result.points;
+			}
+		}
+
+		const datasets = Array.from(driverMap.entries()).map(([userId, driver], idx) => {
+			const cumulative: number[] = [];
+			let sum = 0;
+			for (const pts of driver.points) {
+				sum += pts;
+				cumulative.push(sum);
+			}
+			return {
+				label: driver.username,
+				data: cumulative,
+				borderColor: DRIVER_COLORS[idx % DRIVER_COLORS.length],
+				backgroundColor: DRIVER_COLORS[idx % DRIVER_COLORS.length] + '20'
+			};
+		});
+
+		datasets.sort((a, b) => (b.data.at(-1) || 0) - (a.data.at(-1) || 0));
+
+		return { labels, datasets };
+	}
+
+	const cumulativeData = $derived(buildCumulativeData());
 
 	let showAddRace = $state(false);
 	let showAddTeamMember = $state(false);
@@ -226,10 +290,82 @@
 					{/if}
 				</CardContent>
 			</Card>
+
+			<!-- Championship Chart -->
+			{#if data.pointsPerRace.length > 0}
+				<Card>
+					<CardHeader>
+						<div class="flex items-center gap-2">
+							<TrendingUp class="h-5 w-5 text-blue" />
+							<CardTitle>Championship Battle</CardTitle>
+						</div>
+					</CardHeader>
+					<CardContent>
+						<LineChart labels={cumulativeData.labels} datasets={cumulativeData.datasets} />
+					</CardContent>
+				</Card>
+			{/if}
 		</div>
 
-		<!-- Teams Sidebar -->
+		<!-- Teams & Standings Sidebar -->
 		<div class="space-y-4">
+			<!-- Standings -->
+			<Card>
+				<CardHeader>
+					<div class="flex items-center gap-2">
+						<Trophy class="h-5 w-5 text-gold" />
+						<CardTitle class="text-base">Standings</CardTitle>
+					</div>
+				</CardHeader>
+				<CardContent>
+					{#if data.driverStandings.length > 0}
+						<div class="space-y-1">
+							{#each data.driverStandings as driver, i}
+								<a
+									href="/profile/{driver.userId}"
+									class="flex items-center gap-2 rounded-lg p-2 hover:bg-accent transition-colors {i === 0 ? 'bg-gold/5' : ''}"
+								>
+									<span
+										class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold {i === 0
+											? 'bg-gold text-gold-foreground'
+											: i === 1
+												? 'bg-[#B5C0C8] text-[#1a1a1a]'
+												: i === 2
+													? 'bg-amber-700 text-white'
+													: 'bg-muted text-muted-foreground'}"
+									>
+										{i + 1}
+									</span>
+									{#if driver.teamColor}
+										<Tooltip>
+											<TooltipTrigger>
+												<div
+													class="h-3 w-3 rounded-full shrink-0"
+													style="background-color: {driver.teamColor}"
+												></div>
+											</TooltipTrigger>
+											<TooltipContent>
+												{driver.teamName}
+											</TooltipContent>
+										</Tooltip>
+									{/if}
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-medium truncate">{driver.username}</p>
+									</div>
+									<span class="font-display text-sm font-bold tabular-nums">{driver.totalPoints}</span>
+								</a>
+							{/each}
+						</div>
+					{:else}
+						<div class="text-center py-4">
+							<Trophy class="h-6 w-6 text-gold/40 mx-auto mb-1" />
+							<p class="text-xs text-muted-foreground">No results yet</p>
+						</div>
+					{/if}
+				</CardContent>
+			</Card>
+
+			<!-- Teams -->
 			<Card>
 				<CardHeader>
 					<div class="flex items-center justify-between">
@@ -293,10 +429,17 @@
 						{@const membersList = members as any[]}
 						<div>
 							<div class="flex items-center gap-2 mb-1">
-								<div
-									class="h-3 w-3 rounded-full"
-									style="background-color: {membersList[0].teamColor}"
-								></div>
+								<Tooltip>
+									<TooltipTrigger>
+										<div
+											class="h-3 w-3 rounded-full"
+											style="background-color: {membersList[0].teamColor}"
+										></div>
+									</TooltipTrigger>
+									<TooltipContent>
+										{teamName}
+									</TooltipContent>
+								</Tooltip>
 								<span class="text-sm font-medium">{teamName}</span>
 							</div>
 							<div class="ml-5 space-y-1">

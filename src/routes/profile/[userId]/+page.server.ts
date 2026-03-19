@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { users, raceResults, races, seasons, tracks, teams } from '$lib/server/db/schema';
-import { eq, sql, desc, count, and } from 'drizzle-orm';
+import { eq, sql, desc, asc, count, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -24,6 +24,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			scheduledDate: races.scheduledDate,
 			seasonId: seasons.id,
 			seasonName: seasons.name,
+			seasonYear: seasons.year,
+			trackId: tracks.id,
 			trackName: tracks.name,
 			trackCountry: tracks.country,
 			position: raceResults.position,
@@ -38,7 +40,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		.innerJoin(tracks, eq(races.trackId, tracks.id))
 		.leftJoin(teams, eq(raceResults.teamId, teams.id))
 		.where(eq(raceResults.userId, userId))
-		.orderBy(desc(races.scheduledDate));
+		.orderBy(desc(seasons.year), desc(races.roundNumber));
 
 	// Calculate stats
 	const totalRaces = results.length;

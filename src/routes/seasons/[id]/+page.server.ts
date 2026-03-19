@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { seasons, races, tracks, raceResults, users, teams, seasonTeamMembers } from '$lib/server/db/schema';
-import { eq, asc, sql } from 'drizzle-orm';
+import { eq, asc, desc, sql } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, url }) => {
@@ -63,6 +63,51 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	// Get all users for team assignment
 	const allUsers = await db.select({ id: users.id, username: users.username }).from(users).orderBy(asc(users.username));
 
+	// ── Driver Standings for this season ───────────────────
+	const driverStandings = await db
+		.select({
+			userId: raceResults.userId,
+			username: users.username,
+			avatarUrl: users.avatarUrl,
+			teamName: teams.name,
+			teamColor: teams.color,
+			totalPoints: sql<number>`SUM(${raceResults.points})`.as('total_points'),
+			totalRaces: sql<number>`COUNT(${raceResults.id})`.as('total_races'),
+			wins: sql<number>`COUNT(CASE WHEN ${raceResults.position} = 1 THEN 1 END)`.as('wins'),
+			podiums: sql<number>`COUNT(CASE WHEN ${raceResults.position} <= 3 AND ${raceResults.position} IS NOT NULL THEN 1 END)`.as('podiums'),
+			dnfs: sql<number>`COUNT(CASE WHEN ${raceResults.dnf} = true THEN 1 END)`.as('dnfs')
+		})
+		.from(raceResults)
+		.innerJoin(users, eq(raceResults.userId, users.id))
+		.innerJoin(races, eq(raceResults.raceId, races.id))
+		.leftJoin(teams, eq(raceResults.teamId, teams.id))
+		.where(eq(races.seasonId, seasonId))
+		.groupBy(raceResults.userId, users.username, users.avatarUrl, teams.name, teams.color)
+		.orderBy(desc(sql`SUM(${raceResults.points})`));
+
+	// ── Points per race for charts ───────────────────────────
+	const pointsPerRace: { round: number; trackName: string; results: { userId: string; username: string; points: number; position: number | null; dnf: boolean }[] }[] = [];
+
+	for (const race of seasonRaces) {
+		const raceResultsData = await db
+			.select({
+				userId: raceResults.userId,
+				username: users.username,
+				points: raceResults.points,
+				position: raceResults.position,
+				dnf: raceResults.dnf
+			})
+			.from(raceResults)
+			.innerJoin(users, eq(raceResults.userId, users.id))
+			.where(eq(raceResults.raceId, race.id));
+
+		pointsPerRace.push({
+			round: race.roundNumber,
+			trackName: race.trackName,
+			results: raceResultsData
+		});
+	}
+
 	return {
 		season,
 		races: seasonRaces,
@@ -72,6 +117,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		tracks: allTracks,
 		teamMembers,
 		allTeams,
-		allUsers
+		allUsers,
+		driverStandings,
+		pointsPerRace
 	};
 };
