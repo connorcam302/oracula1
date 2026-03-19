@@ -18,7 +18,6 @@
         <h1 class="font-display text-4xl font-bold tracking-tight leading-none text-foreground">
             Oracula<span class="text-primary">1</span>
         </h1>
-        <p class="text-sm text-muted-foreground mt-2 tracking-wide uppercase font-medium">F1 Race Tracking with Friends</p>
     </div>
 
     <!-- Stats Overview — each card has its own semantic color -->
