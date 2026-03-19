@@ -4,7 +4,9 @@ import { races, tracks, raceResults, users, teams, seasons, seasonTeamMembers } 
 import { eq, asc } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
+	const session = await locals.auth?.();
+	const currentUserId = session?.user?.id ?? null;
 	const raceId = parseInt(params.raceId);
 	const seasonId = parseInt(params.id);
 
@@ -81,6 +83,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		results,
 		allUsers,
 		allTeams,
-		userTeamMap
+		userTeamMap,
+		currentUserId
 	};
 };

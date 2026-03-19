@@ -46,7 +46,7 @@
             ? 'flex'
             : 'hidden md:flex'}"
     >
-        <AppSidebar bind:collapsed session={data.session} seasons={data.sidebarSeasons} />
+        <AppSidebar bind:collapsed session={data.session} seasons={data.sidebarSeasons} hasClaimedProfile={data.hasClaimedProfile} />
     </div>
 
     <main class="flex flex-1 flex-col overflow-y-auto bg-background">

@@ -35,12 +35,14 @@
         collapsed?: boolean;
         session?: any;
         seasons?: SidebarSeason[];
+        hasClaimedProfile?: boolean;
     }
 
     let {
         collapsed = $bindable(false),
         session,
         seasons = [],
+        hasClaimedProfile = false,
     }: Props = $props();
 
     // ── Collapsible section state ──────────────────────────
@@ -314,8 +316,8 @@
             {/if}
         </a>
 
-        <!-- Claim Profile link (only when signed in) -->
-        {#if session?.user}
+        <!-- Claim Profile link (only when signed in and profile not yet claimed) -->
+        {#if session?.user && !hasClaimedProfile}
             <a
                 href="/claim"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActive(

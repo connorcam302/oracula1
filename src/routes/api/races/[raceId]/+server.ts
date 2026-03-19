@@ -21,15 +21,3 @@ export const PATCH: RequestHandler = async ({ request, params, locals }) => {
 
 	return json(race);
 };
-
-export const DELETE: RequestHandler = async ({ params, locals }) => {
-	const session = await locals.auth?.();
-	if (!session?.user) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
-
-	const raceId = parseInt(params.raceId);
-	await db.delete(races).where(eq(races.id, raceId));
-
-	return json({ success: true });
-};

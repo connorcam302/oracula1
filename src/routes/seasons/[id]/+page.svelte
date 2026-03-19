@@ -21,13 +21,13 @@
         ArrowLeft,
         Plus,
         Flag,
-        Trash2,
         ChevronLeft,
         ChevronRight,
         Users,
         UserPlus,
         Trophy,
         TrendingUp,
+        X,
     } from "lucide-svelte";
 
     let { data } = $props();
@@ -134,12 +134,6 @@
         }
     }
 
-    async function deleteRace(raceId: number) {
-        if (!confirm("Delete this race and all its results?")) return;
-        await fetch(`/api/races/${raceId}`, { method: "DELETE" });
-        await invalidateAll();
-    }
-
     async function addTeamMember() {
         if (!selectedUser || !selectedTeam) return;
         addingMember = true;
@@ -161,6 +155,17 @@
             }
         } finally {
             addingMember = false;
+        }
+    }
+
+    async function removeTeamMember(userId: string) {
+        const res = await fetch(`/api/seasons/${data.season.id}/races`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
+        });
+        if (res.ok) {
+            await invalidateAll();
         }
     }
 </script>
@@ -328,12 +333,6 @@
                                         >
                                     {/if}
                                 </a>
-                                <button
-                                    onclick={() => deleteRace(race.id)}
-                                    class="ml-2 shrink-0 rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                                >
-                                    <Trash2 class="h-4 w-4" />
-                                </button>
                             </div>
                         {/each}
 
@@ -589,9 +588,20 @@
                                                 class="h-6 w-6"
                                             />
                                             <span
-                                                class="text-xs text-muted-foreground"
+                                                class="text-xs text-muted-foreground flex-1 truncate"
                                                 >{member.username}</span
                                             >
+                                            {#if data.currentUserId === member.userId}
+                                                <button
+                                                    onclick={() =>
+                                                        removeTeamMember(
+                                                            member.userId,
+                                                        )}
+                                                    class="text-muted-foreground hover:text-destructive transition-colors"
+                                                >
+                                                    <X class="h-3.5 w-3.5" />
+                                                </button>
+                                            {/if}
                                         </div>
                                     {/each}
                                 </div>

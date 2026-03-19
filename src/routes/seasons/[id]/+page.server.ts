@@ -4,7 +4,9 @@ import { seasons, races, tracks, raceResults, users, teams, seasonTeamMembers } 
 import { eq, asc, desc, sql } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+	const session = await locals.auth?.();
+	const currentUserId = session?.user?.id ?? null;
 	const seasonId = parseInt(params.id);
 	if (isNaN(seasonId)) throw error(404, 'Season not found');
 
@@ -119,6 +121,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		allTeams,
 		allUsers,
 		driverStandings,
-		pointsPerRace
+		pointsPerRace,
+		currentUserId
 	};
 };

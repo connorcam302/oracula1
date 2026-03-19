@@ -259,12 +259,14 @@
 						</div>
 
 						<!-- Delete -->
-						<button
-							onclick={() => deleteResult(result.id)}
-							class="shrink-0 rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-						>
-							<XCircle class="h-4 w-4" />
-						</button>
+						{#if result.userId === data.currentUserId}
+							<button
+								onclick={() => deleteResult(result.id)}
+								class="shrink-0 rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+							>
+								<XCircle class="h-4 w-4" />
+							</button>
+						{/if}
 					</div>
 				{/each}
 

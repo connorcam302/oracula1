@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { seasons, races } from '$lib/server/db/schema';
+import { seasons, races, users } from '$lib/server/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
 
 export const load: LayoutServerLoad = async (event) => {
@@ -19,8 +19,19 @@ export const load: LayoutServerLoad = async (event) => {
 		.groupBy(seasons.id, seasons.name, seasons.year)
 		.orderBy(desc(seasons.year), desc(seasons.id));
 
+	let hasClaimedProfile = false;
+	if (session?.user?.id) {
+		const [user] = await db
+			.select({ claimed: users.claimed })
+			.from(users)
+			.where(eq(users.id, session.user.id))
+			.limit(1);
+		hasClaimedProfile = user?.claimed ?? false;
+	}
+
 	return {
 		session,
-		sidebarSeasons
+		sidebarSeasons,
+		hasClaimedProfile
 	};
 };

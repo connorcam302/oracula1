@@ -42,6 +42,21 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
 	}
 
 	const { resultId } = await request.json();
+
+	const [result] = await db
+		.select({ userId: raceResults.userId })
+		.from(raceResults)
+		.where(eq(raceResults.id, resultId))
+		.limit(1);
+
+	if (!result) {
+		return json({ error: 'Result not found' }, { status: 404 });
+	}
+
+	if (result.userId !== session.user.id) {
+		return json({ error: 'You can only delete your own results' }, { status: 403 });
+	}
+
 	await db.delete(raceResults).where(eq(raceResults.id, resultId));
 
 	return json({ success: true });
