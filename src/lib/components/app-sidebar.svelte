@@ -37,11 +37,22 @@
         seasons?: SidebarSeason[];
     }
 
-    let { collapsed = $bindable(false), session, seasons = [] }: Props = $props();
+    let {
+        collapsed = $bindable(false),
+        session,
+        seasons = [],
+    }: Props = $props();
 
     // ── Collapsible section state ──────────────────────────
     let seasonsOpen = $state(true);
     let statsOpen = $state(true);
+    const navItems = [
+        { href: "/", label: "Home", icon: Home },
+        { href: "/seasons", label: "Seasons", icon: Trophy },
+        { href: "/races", label: "Races", icon: Flag },
+        { href: "/stats", label: "Stats", icon: BarChart3 },
+        { href: "/profile", label: "Profile", icon: User },
+    ];
 
     function isActive(href: string, pathname: string) {
         if (href === "/") return pathname === "/";
@@ -53,10 +64,11 @@
     }
 
     // Determine if a season is currently in progress
-    function seasonStatus(s: SidebarSeason): 'complete' | 'active' | 'empty' {
-        if (s.totalRaces > 0 && s.completedRaces === s.totalRaces) return 'complete';
-        if (s.completedRaces > 0) return 'active';
-        return 'empty';
+    function seasonStatus(s: SidebarSeason): "complete" | "active" | "empty" {
+        if (s.totalRaces > 0 && s.completedRaces === s.totalRaces)
+            return "complete";
+        if (s.completedRaces > 0) return "active";
+        return "empty";
     }
 </script>
 
@@ -69,13 +81,18 @@
     <div class="flex items-center justify-between p-4">
         {#if !collapsed}
             <a href="/" class="flex items-center gap-2 group">
-                <span class="font-display text-xl font-bold tracking-tight uppercase leading-none">
+                <span
+                    class="font-display text-xl font-bold tracking-tight uppercase leading-none"
+                >
                     Oracula<span class="text-primary">1</span>
                 </span>
             </a>
         {:else}
             <a href="/" class="mx-auto relative group">
-                <span class="font-display text-base font-bold text-primary leading-none">O1</span>
+                <span
+                    class="font-display text-base font-bold text-primary leading-none"
+                    >O1</span
+                >
                 <span
                     class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-gold ring-2 ring-sidebar-background"
                 ></span>
@@ -140,7 +157,9 @@
 
             <!-- Season sub-links -->
             {#if seasonsOpen}
-                <div class="ml-4 border-l border-sidebar-border pl-2 space-y-0.5">
+                <div
+                    class="ml-4 border-l border-sidebar-border pl-2 space-y-0.5"
+                >
                     <!-- All Seasons link -->
                     <a
                         href="/seasons"
@@ -158,7 +177,9 @@
                     <!-- Individual seasons -->
                     {#each seasons as season}
                         {@const status = seasonStatus(season)}
-                        {@const isSeasonActive = $page.url.pathname.startsWith(`/seasons/${season.id}`)}
+                        {@const isSeasonActive = $page.url.pathname.startsWith(
+                            `/seasons/${season.id}`,
+                        )}
                         <a
                             href="/seasons/{season.id}"
                             class="group flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {isSeasonActive
@@ -169,11 +190,13 @@
                                 class="h-3 w-3 shrink-0 {status === 'complete'
                                     ? 'text-gold'
                                     : status === 'active'
-                                        ? 'text-blue'
-                                        : 'text-muted-foreground/50'}"
+                                      ? 'text-blue'
+                                      : 'text-muted-foreground/50'}"
                             />
                             <span class="flex-1 truncate">{season.name}</span>
-                            <span class="font-display text-[10px] tabular-nums text-muted-foreground/60">
+                            <span
+                                class="font-display text-[10px] tabular-nums text-muted-foreground/60"
+                            >
                                 {season.completedRaces}/{season.totalRaces}
                             </span>
                         </a>
@@ -229,7 +252,9 @@
             </button>
 
             {#if statsOpen}
-                <div class="ml-4 border-l border-sidebar-border pl-2 space-y-0.5">
+                <div
+                    class="ml-4 border-l border-sidebar-border pl-2 space-y-0.5"
+                >
                     <a
                         href="/stats"
                         class="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {isActive(

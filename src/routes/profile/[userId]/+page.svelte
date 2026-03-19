@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Tooltip, TooltipTrigger, TooltipContent } from '$lib/components/ui/tooltip';
 	import { formatPosition } from '$lib/points';
+	import { countryToFlag } from '$lib/utils';
 	import { Trophy, Flag, Medal, Skull, TrendingUp, Star, ArrowLeft, Pencil, Check, X } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -343,7 +344,7 @@
 
 						<!-- Race info -->
 						<div class="flex-1 min-w-0">
-							<p class="text-sm font-medium truncate">{result.trackName}</p>
+							<p class="text-sm font-medium truncate">{countryToFlag(result.trackCountry)} {result.trackName}</p>
 							<p class="text-xs text-muted-foreground">
 								{result.seasonName} &middot; Round {result.roundNumber}
 							</p>
