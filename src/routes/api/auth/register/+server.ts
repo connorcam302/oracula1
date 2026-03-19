@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		username,
 		email,
 		passwordHash,
-		claimed: true
+		claimed: false
 	});
 
 	return json({ success: true, id });

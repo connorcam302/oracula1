@@ -4,12 +4,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Avatar } from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
-	import { UserCheck, ArrowLeft, AlertCircle } from 'lucide-svelte';
+	import { UserCheck, ArrowLeft, AlertCircle, Sparkles } from 'lucide-svelte';
 
 	let { data } = $props();
 
 	let claiming = $state('');
 	let error = $state('');
+	let continuing = $state(false);
 
 	async function claimProfile(placeholderUserId: string) {
 		if (!confirm('Claim this profile? All race data will be transferred to your account. This cannot be undone.')) {
@@ -40,19 +41,39 @@
 			claiming = '';
 		}
 	}
+
+	async function continueAsNew() {
+		continuing = true;
+		error = '';
+
+		try {
+			const res = await fetch('/api/claim', {
+				method: 'PATCH'
+			});
+
+			const result = await res.json();
+
+			if (!res.ok) {
+				error = result.error || 'Failed to continue';
+				continuing = false;
+				return;
+			}
+
+			await invalidateAll();
+			goto(`/profile/${data.currentUserId}`);
+		} catch (err) {
+			error = 'An error occurred';
+			continuing = false;
+		}
+	}
 </script>
 
 <div class="p-6 max-w-3xl mx-auto space-y-6">
 	<div class="flex items-center gap-4">
-		<a href="/">
-			<Button variant="ghost" size="icon">
-				<ArrowLeft class="h-5 w-5" />
-			</Button>
-		</a>
 		<div>
 			<h1 class="text-3xl font-bold text-foreground">Claim Profile</h1>
 			<p class="text-muted-foreground mt-1">
-				Claim an existing profile to inherit their race data
+				Choose a profile to inherit or start fresh with your new account
 			</p>
 		</div>
 	</div>
@@ -76,7 +97,8 @@
 			{#if data.unclaimedUsers.length === 0}
 				<div class="text-center py-8">
 					<UserCheck class="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-					<p class="text-muted-foreground">All profiles have been claimed</p>
+					<p class="text-muted-foreground mb-4">All profiles have been claimed</p>
+					<p class="text-sm text-muted-foreground">You can still continue with your new account below.</p>
 				</div>
 			{:else}
 				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -105,6 +127,30 @@
 					{/each}
 				</div>
 			{/if}
+		</CardContent>
+	</Card>
+
+	<Card>
+		<CardHeader>
+			<CardTitle>Or continue as a new account</CardTitle>
+			<CardDescription>
+				Start fresh with no race history. You can still view seasons and stats.
+			</CardDescription>
+		</CardHeader>
+		<CardContent>
+			<Button
+				variant="outline"
+				onclick={continueAsNew}
+				disabled={continuing}
+				class="w-full"
+			>
+				{#if continuing}
+					Setting up...
+				{:else}
+					<Sparkles class="h-4 w-4 mr-2" />
+					Continue as New Account
+				{/if}
+			</Button>
 		</CardContent>
 	</Card>
 </div>

@@ -74,7 +74,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 							image: user.image ?? null,
 							avatarUrl: user.image ?? null,
 							googleId: account.providerAccountId,
-							claimed: true
+							claimed: false
 						}).returning();
 					} else if (!dbUser.googleId) {
 						// Existing email user logging in with Google for first time — link account

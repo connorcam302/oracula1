@@ -57,17 +57,32 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			await tx.delete(users).where(eq(users.id, placeholderUserId));
 
 			// Update the current user's username to the placeholder's if they have an auto-generated one
-			if (!currentUser.username || currentUser.username === currentUser.email) {
-				await tx
-					.update(users)
-					.set({ username: placeholder.username })
-					.where(eq(users.id, currentUserId));
-			}
+			// and mark as claimed
+			await tx
+				.update(users)
+				.set({ 
+					username: (!currentUser.username || currentUser.username === currentUser.email) 
+						? placeholder.username 
+						: currentUser.username,
+					claimed: true
+				})
+				.where(eq(users.id, currentUserId));
 		});
 	} catch (err) {
 		console.error('Claim failed:', err);
 		return json({ error: 'Failed to claim profile: ' + (err instanceof Error ? err.message : String(err)) }, { status: 500 });
 	}
+
+	return json({ success: true });
+};
+
+export const PATCH: RequestHandler = async ({ locals }) => {
+	const session = await locals.auth?.();
+	if (!session?.user?.id) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	await db.update(users).set({ claimed: true }).where(eq(users.id, session.user.id));
 
 	return json({ success: true });
 };

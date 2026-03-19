@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, and, ne } from 'drizzle-orm';
 import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -10,7 +10,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(302, '/auth/signin');
 	}
 
-	// Get unclaimed placeholder users
+	const currentUserId = session.user.id!;
+
 	const unclaimedUsers = await db
 		.select({
 			id: users.id,
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			avatarUrl: users.avatarUrl
 		})
 		.from(users)
-		.where(eq(users.claimed, false))
+		.where(and(eq(users.claimed, false), ne(users.id, currentUserId)))
 		.orderBy(asc(users.username));
 
 	return {

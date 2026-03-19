@@ -316,25 +316,7 @@
             {/if}
         </a>
 
-        <!-- Claim Profile link (only when signed in and profile not yet claimed) -->
-        {#if session?.user && !hasClaimedProfile}
-            <a
-                href="/claim"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActive(
-                    '/claim',
-                    $page.url.pathname,
-                )
-                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
-                    ? 'justify-center'
-                    : ''}"
-            >
-                <UserCheck class="h-4 w-4 shrink-0" />
-                {#if !collapsed}
-                    <span>Claim Profile</span>
-                {/if}
-            </a>
-        {/if}
+
     </nav>
 
     <Separator />

@@ -1,4 +1,5 @@
 import type { LayoutServerLoad } from './$types';
+import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { seasons, races, users } from '$lib/server/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
@@ -27,6 +28,10 @@ export const load: LayoutServerLoad = async (event) => {
 			.where(eq(users.id, session.user.id))
 			.limit(1);
 		hasClaimedProfile = user?.claimed ?? false;
+	}
+
+	if (session?.user && !hasClaimedProfile && !event.url.pathname.startsWith('/claim') && !event.url.pathname.startsWith('/auth/')) {
+		throw redirect(302, '/claim');
 	}
 
 	return {
