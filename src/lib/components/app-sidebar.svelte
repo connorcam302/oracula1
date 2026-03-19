@@ -122,6 +122,24 @@
             {/if}
         </a>
 
+        <!-- ── Races ────────────────────────────────────────── -->
+        <a
+            href="/races"
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActivePrefix(
+                '/races',
+                $page.url.pathname,
+            )
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
+                ? 'justify-center'
+                : ''}"
+        >
+            <Flag class="h-4 w-4 shrink-0" />
+            {#if !collapsed}
+                <span>Races</span>
+            {/if}
+        </a>
+
         <!-- ── Seasons section ──────────────────────────────── -->
         {#if collapsed}
             <a
