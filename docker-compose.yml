@@ -22,8 +22,6 @@ services:
     restart: unless-stopped
     ports:
       - '${PORT:-3000}:${PORT:-3000}'
-    env_file:
-      - .env.docker
     environment:
       PORT: ${PORT:-3000}
       DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/oracula}
