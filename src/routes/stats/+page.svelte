@@ -154,8 +154,8 @@
 <div class="p-6 space-y-6">
 	<div class="flex items-center justify-between">
 		<div>
-			<h1 class="text-3xl font-bold text-foreground">Stats</h1>
-			<p class="text-muted-foreground mt-1">Driver and constructor standings</p>
+			<h1 class="font-display text-3xl font-bold tracking-tight leading-none text-foreground">Stats</h1>
+			<p class="text-xs text-muted-foreground mt-2 uppercase tracking-widest font-medium">Driver and constructor standings</p>
 		</div>
 		<div>
 			<select
@@ -200,18 +200,18 @@
 							</span>
 							<Avatar src={driver.avatarUrl} fallback={driver.username} class="h-8 w-8" />
 							<div class="flex-1 min-w-0">
-								<p class="text-sm font-medium truncate">{driver.username}</p>
-								<p class="text-xs text-muted-foreground">
-									<span class="text-yellow-500 font-medium">{driver.wins}W</span>
+								<p class="text-sm font-semibold truncate">{driver.username}</p>
+								<p class="text-xs text-muted-foreground tracking-wide">
+									<span class="text-gold font-semibold">{driver.wins}W</span>
 									<span class="mx-0.5 text-muted-foreground/40">·</span>
-									<span class="text-amber-500 font-medium">{driver.podiums}P</span>
+									<span class="text-amber-500 font-semibold">{driver.podiums}P</span>
 									<span class="mx-0.5 text-muted-foreground/40">·</span>
-									<span class="text-destructive font-medium">{driver.dnfs}D</span>
+									<span class="text-destructive font-semibold">{driver.dnfs}D</span>
 									<span class="mx-0.5 text-muted-foreground/40">·</span>
 									{driver.totalRaces} races
 								</p>
 							</div>
-							<span class="text-sm font-bold tabular-nums">{driver.totalPoints} pts</span>
+							<span class="font-display text-sm font-bold tabular-nums">{driver.totalPoints} <span class="text-xs font-medium text-muted-foreground">pts</span></span>
 						</a>
 					{/each}
 				</div>

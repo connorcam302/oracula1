@@ -140,7 +140,7 @@
 						</div>
 					{:else}
 						<div class="flex items-center gap-3">
-							<h1 class="text-3xl font-bold text-foreground truncate">{data.profile.username}</h1>
+							<h1 class="font-display text-3xl font-bold tracking-tight leading-none text-foreground truncate">{data.profile.username}</h1>
 							{#if isOwner}
 								<Button
 									size="icon"
@@ -173,8 +173,8 @@
 				<div class="rounded-lg bg-primary/10 p-2 w-fit mx-auto mb-2">
 					<Flag class="h-5 w-5 text-primary" />
 				</div>
-				<p class="text-2xl font-bold">{data.stats.totalRaces}</p>
-				<p class="text-xs text-muted-foreground">Races</p>
+				<p class="font-display text-2xl font-bold tabular-nums leading-tight">{data.stats.totalRaces}</p>
+				<p class="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Races</p>
 			</CardContent>
 		</Card>
 		<!-- Wins: Championship Gold -->
@@ -183,8 +183,8 @@
 				<div class="rounded-lg bg-gold/10 p-2 w-fit mx-auto mb-2">
 					<Trophy class="h-5 w-5 text-gold" />
 				</div>
-				<p class="text-2xl font-bold {data.stats.wins > 0 ? 'text-gold' : ''}">{data.stats.wins}</p>
-				<p class="text-xs text-muted-foreground">Wins</p>
+				<p class="font-display text-2xl font-bold tabular-nums leading-tight {data.stats.wins > 0 ? 'text-gold' : ''}">{data.stats.wins}</p>
+				<p class="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Wins</p>
 			</CardContent>
 		</Card>
 		<!-- Podiums: Amber -->
@@ -193,8 +193,8 @@
 				<div class="rounded-lg bg-amber-500/10 p-2 w-fit mx-auto mb-2">
 					<Medal class="h-5 w-5 text-amber-500" />
 				</div>
-				<p class="text-2xl font-bold">{data.stats.podiums}</p>
-				<p class="text-xs text-muted-foreground">Podiums</p>
+				<p class="font-display text-2xl font-bold tabular-nums leading-tight">{data.stats.podiums}</p>
+				<p class="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Podiums</p>
 			</CardContent>
 		</Card>
 		<!-- Points: Data Blue -->
@@ -203,8 +203,8 @@
 				<div class="rounded-lg bg-blue/10 p-2 w-fit mx-auto mb-2">
 					<TrendingUp class="h-5 w-5 text-blue" />
 				</div>
-				<p class="text-2xl font-bold">{data.stats.totalPoints}</p>
-				<p class="text-xs text-muted-foreground">Points</p>
+				<p class="font-display text-2xl font-bold tabular-nums leading-tight">{data.stats.totalPoints}</p>
+				<p class="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Points</p>
 			</CardContent>
 		</Card>
 		<!-- DNFs: Destructive Red -->
@@ -213,8 +213,8 @@
 				<div class="rounded-lg bg-destructive/10 p-2 w-fit mx-auto mb-2">
 					<Skull class="h-5 w-5 text-destructive" />
 				</div>
-				<p class="text-2xl font-bold">{data.stats.dnfs}</p>
-				<p class="text-xs text-muted-foreground">DNFs</p>
+				<p class="font-display text-2xl font-bold tabular-nums leading-tight">{data.stats.dnfs}</p>
+				<p class="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">DNFs</p>
 			</CardContent>
 		</Card>
 		<!-- Best Finish: Success Green -->
@@ -223,10 +223,10 @@
 				<div class="rounded-lg bg-success/10 p-2 w-fit mx-auto mb-2">
 					<Star class="h-5 w-5 text-success" />
 				</div>
-				<p class="text-2xl font-bold">
-					{data.stats.bestFinish ? `P${data.stats.bestFinish}` : '-'}
+				<p class="font-display text-2xl font-bold tabular-nums leading-tight">
+					{data.stats.bestFinish ? `P${data.stats.bestFinish}` : '—'}
 				</p>
-				<p class="text-xs text-muted-foreground">Best Finish</p>
+				<p class="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Best Finish</p>
 			</CardContent>
 		</Card>
 	</div>

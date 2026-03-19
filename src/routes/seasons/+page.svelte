@@ -10,8 +10,8 @@
 <div class="p-6 space-y-6">
 	<div class="flex items-center justify-between">
 		<div>
-			<h1 class="text-3xl font-bold text-foreground">Seasons</h1>
-			<p class="text-muted-foreground mt-1">Manage your F1 race seasons</p>
+			<h1 class="font-display text-3xl font-bold tracking-tight leading-none text-foreground">Seasons</h1>
+			<p class="text-xs text-muted-foreground mt-2 uppercase tracking-widest font-medium">Manage your F1 race seasons</p>
 		</div>
 		<a href="/seasons/create">
 			<Button>

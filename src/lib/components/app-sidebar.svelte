@@ -48,16 +48,13 @@
     <div class="flex items-center justify-between p-4">
         {#if !collapsed}
             <a href="/" class="flex items-center gap-2 group">
-                <span class="text-lg font-bold tracking-tight"
-                    >Oracula<span class="text-primary font-bold text-xl">1</span
-                    ></span
-                >
+                <span class="font-display text-xl font-bold tracking-tight uppercase leading-none">
+                    Oracula<span class="text-primary">1</span>
+                </span>
             </a>
         {:else}
             <a href="/" class="mx-auto relative group">
-                <Flag
-                    class="h-6 w-6 text-primary transition-transform group-hover:scale-110"
-                />
+                <span class="font-display text-base font-bold text-primary leading-none">O1</span>
                 <span
                     class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-gold ring-2 ring-sidebar-background"
                 ></span>
@@ -73,16 +70,16 @@
             {@const Icon = item.icon}
             <a
                 href={item.href}
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors {isActive(
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActive(
                     item.href,
                     $page.url.pathname,
                 )
-                    ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
                     ? 'justify-center'
                     : ''}"
             >
-                <Icon class="h-5 w-5 shrink-0" />
+                <Icon class="h-4 w-4 shrink-0" />
                 {#if !collapsed}
                     <span>{item.label}</span>
                 {/if}
@@ -92,11 +89,11 @@
         {#if session?.user}
             <a
                 href="/claim"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors {isActive(
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide transition-colors {isActive(
                     '/claim',
                     $page.url.pathname,
                 )
-                    ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'} {collapsed
                     ? 'justify-center'
                     : ''}"
@@ -137,7 +134,7 @@
             </div>
             <button
                 onclick={() => signOut({ callbackUrl: "/" })}
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors {collapsed
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors {collapsed
                     ? 'justify-center'
                     : ''}"
             >
@@ -149,7 +146,7 @@
         {:else}
             <a
                 href="/auth/signin"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors {collapsed
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium tracking-wide text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors {collapsed
                     ? 'justify-center'
                     : ''}"
             >

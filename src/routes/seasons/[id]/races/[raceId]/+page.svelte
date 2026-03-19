@@ -92,10 +92,10 @@
 			</Button>
 		</a>
 		<div class="flex-1">
-			<h1 class="text-2xl font-bold text-foreground">
-				Round {data.race.roundNumber} - {data.race.trackName}
+			<h1 class="font-display text-2xl font-bold tracking-tight leading-none text-foreground">
+				Round {data.race.roundNumber} — {data.race.trackName}
 			</h1>
-			<p class="text-muted-foreground">
+			<p class="text-xs text-muted-foreground mt-1.5 uppercase tracking-widest font-medium">
 				{data.season.name} &middot; {data.race.trackCountry}
 				{#if data.race.scheduledDate}
 					&middot; {data.race.scheduledDate}

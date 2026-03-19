@@ -15,9 +15,10 @@
 
 <div class="p-6 space-y-6">
     <div>
-        <h1 class="text-3xl font-bold text-foreground">
-            Oracula<span class="text-primary font-bold text-4xl">1</span>
+        <h1 class="font-display text-4xl font-bold tracking-tight leading-none text-foreground">
+            Oracula<span class="text-primary">1</span>
         </h1>
+        <p class="text-sm text-muted-foreground mt-2 tracking-wide uppercase font-medium">F1 Race Tracking with Friends</p>
     </div>
 
     <!-- Stats Overview — each card has its own semantic color -->
@@ -30,10 +31,10 @@
                         <Trophy class="h-6 w-6 text-gold" />
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">
+                        <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium">
                             Total Seasons
                         </p>
-                        <p class="text-2xl font-bold">{data.totalSeasons}</p>
+                        <p class="font-display text-2xl font-bold tabular-nums leading-tight">{data.totalSeasons}</p>
                     </div>
                 </div>
             </CardContent>
@@ -47,10 +48,10 @@
                         <Flag class="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">
+                        <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium">
                             Races Completed
                         </p>
-                        <p class="text-2xl font-bold">{data.totalRaces}</p>
+                        <p class="font-display text-2xl font-bold tabular-nums leading-tight">{data.totalRaces}</p>
                     </div>
                 </div>
             </CardContent>
@@ -64,10 +65,10 @@
                         <Users class="h-6 w-6 text-blue" />
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">
+                        <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium">
                             Latest Season
                         </p>
-                        <p class="text-lg font-bold truncate">
+                        <p class="font-display text-lg font-bold truncate leading-tight">
                             {data.latestSeason?.name || "N/A"}
                         </p>
                     </div>
@@ -83,8 +84,8 @@
                         <TrendingUp class="h-6 w-6 text-success" />
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">Top Driver</p>
-                        <p class="text-lg font-bold truncate">
+                        <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium">Top Driver</p>
+                        <p class="font-display text-lg font-bold truncate leading-tight">
                             {data.topDrivers[0]?.username || "N/A"}
                         </p>
                     </div>
@@ -130,15 +131,15 @@
                                 class="h-8 w-8"
                             />
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium truncate">
+                                <p class="text-sm font-semibold truncate">
                                     {driver.username}
                                 </p>
-                                <p class="text-xs text-muted-foreground">
+                                <p class="text-xs text-muted-foreground tracking-wide">
                                     {driver.totalRaces} races
                                 </p>
                             </div>
-                            <span class="text-sm font-bold tabular-nums"
-                                >{driver.totalPoints} pts</span
+                            <span class="font-display text-sm font-bold tabular-nums"
+                                >{driver.totalPoints} <span class="text-xs font-medium text-muted-foreground">pts</span></span
                             >
                         </a>
                     {/each}
