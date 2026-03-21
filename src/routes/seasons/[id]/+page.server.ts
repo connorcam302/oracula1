@@ -65,6 +65,26 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	// Get all users for team assignment
 	const allUsers = await db.select({ id: users.id, username: users.username }).from(users).orderBy(asc(users.username));
 
+	// ── Constructor Standings (avg pts per driver per race) ──
+	const constructorStandings = await db.execute(sql`
+		SELECT
+			t.id as "teamId",
+			t.name as "teamName",
+			t.color as "teamColor",
+			ROUND(SUM(sub.avg_pts)::numeric, 1)::float as "totalPoints",
+			COUNT(*)::int as "totalRaces"
+		FROM (
+			SELECT rr.race_id, rr.team_id, AVG(rr.points) as avg_pts
+			FROM race_results rr
+			JOIN races r ON rr.race_id = r.id
+			WHERE r.season_id = ${seasonId}
+			GROUP BY rr.race_id, rr.team_id
+		) sub
+		JOIN teams t ON sub.team_id = t.id
+		GROUP BY t.id, t.name, t.color
+		ORDER BY "totalPoints" DESC
+	`);
+
 	// ── Driver Standings for this season ───────────────────
 	const driverStandings = await db
 		.select({
@@ -121,6 +141,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		allTeams,
 		allUsers,
 		driverStandings,
+		constructorStandings,
 		pointsPerRace,
 		currentUserId
 	};

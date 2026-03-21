@@ -98,6 +98,8 @@
 
     const cumulativeData = $derived(buildCumulativeData());
 
+    let standingsView = $state<'drivers' | 'constructors'>('drivers');
+
     let showAddRace = $state(false);
     let showAddTeamMember = $state(false);
     let selectedTrack = $state("");
@@ -413,66 +415,116 @@
             <!-- Standings -->
             <Card>
                 <CardHeader>
-                    <div class="flex items-center gap-2">
-                        <Trophy class="h-5 w-5 text-gold" />
-                        <CardTitle class="text-base">Standings</CardTitle>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <Trophy class="h-5 w-5 text-gold" />
+                            <CardTitle class="text-base">Standings</CardTitle>
+                        </div>
+                        <div class="flex rounded-md border border-border overflow-hidden text-xs">
+                            <button
+                                onclick={() => (standingsView = 'drivers')}
+                                class="px-2 py-1 transition-colors {standingsView === 'drivers' ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'}"
+                            >
+                                Drivers
+                            </button>
+                            <button
+                                onclick={() => (standingsView = 'constructors')}
+                                class="px-2 py-1 transition-colors {standingsView === 'constructors' ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'}"
+                            >
+                                Constructors
+                            </button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {#if data.driverStandings.length > 0}
-                        <div class="space-y-1">
-                            {#each data.driverStandings as driver, i}
-                                <a
-                                    href="/profile/{driver.userId}"
-                                    class="flex items-center gap-2 rounded-lg p-2 hover:bg-accent transition-colors {i ===
-                                    0
-                                        ? 'bg-gold/5'
-                                        : ''}"
-                                >
-                                    <span
-                                        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold {i ===
-                                        0
-                                            ? 'bg-gold text-gold-foreground'
-                                            : i === 1
-                                              ? 'bg-[#B5C0C8] text-[#1a1a1a]'
-                                              : i === 2
-                                                ? 'bg-amber-700 text-white'
-                                                : 'bg-muted text-muted-foreground'}"
+                    {#if standingsView === 'drivers'}
+                        {#if data.driverStandings.length > 0}
+                            <div class="space-y-1">
+                                {#each data.driverStandings as driver, i}
+                                    <a
+                                        href="/profile/{driver.userId}"
+                                        class="flex items-center gap-2 rounded-lg p-2 hover:bg-accent transition-colors {i === 0 ? 'bg-gold/5' : ''}"
                                     >
-                                        {i + 1}
-                                    </span>
-                                    {#if driver.teamColor}
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <div
-                                                    class="h-3 w-3 rounded-full shrink-0"
-                                                    style="background-color: {driver.teamColor}"
-                                                ></div>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                {driver.teamName}
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    {/if}
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium truncate">
-                                            {driver.username}
-                                        </p>
-                                    </div>
-                                    <span
-                                        class="font-display text-sm font-bold tabular-nums"
-                                        >{driver.totalPoints}</span
-                                    >
-                                </a>
-                            {/each}
-                        </div>
+                                        <span
+                                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold {i === 0
+                                                ? 'bg-gold text-gold-foreground'
+                                                : i === 1
+                                                  ? 'bg-[#B5C0C8] text-[#1a1a1a]'
+                                                  : i === 2
+                                                    ? 'bg-amber-700 text-white'
+                                                    : 'bg-muted text-muted-foreground'}"
+                                        >
+                                            {i + 1}
+                                        </span>
+                                        {#if driver.teamColor}
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <div
+                                                        class="h-3 w-3 rounded-full shrink-0"
+                                                        style="background-color: {driver.teamColor}"
+                                                    ></div>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    {driver.teamName}
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        {/if}
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium truncate">
+                                                {driver.username}
+                                            </p>
+                                        </div>
+                                        <span class="font-display text-sm font-bold tabular-nums"
+                                            >{driver.totalPoints}</span
+                                        >
+                                    </a>
+                                {/each}
+                            </div>
+                        {:else}
+                            <div class="text-center py-4">
+                                <Trophy class="h-6 w-6 text-gold/40 mx-auto mb-1" />
+                                <p class="text-xs text-muted-foreground">No results yet</p>
+                            </div>
+                        {/if}
                     {:else}
-                        <div class="text-center py-4">
-                            <Trophy class="h-6 w-6 text-gold/40 mx-auto mb-1" />
-                            <p class="text-xs text-muted-foreground">
-                                No results yet
-                            </p>
-                        </div>
+                        {#if data.constructorStandings.length > 0}
+                            <div class="space-y-1">
+                                {#each data.constructorStandings as constructor, i}
+                                    <div
+                                        class="flex items-center gap-2 rounded-lg p-2 {i === 0 ? 'bg-gold/5' : ''}"
+                                    >
+                                        <span
+                                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold {i === 0
+                                                ? 'bg-gold text-gold-foreground'
+                                                : i === 1
+                                                  ? 'bg-[#B5C0C8] text-[#1a1a1a]'
+                                                  : i === 2
+                                                    ? 'bg-amber-700 text-white'
+                                                    : 'bg-muted text-muted-foreground'}"
+                                        >
+                                            {i + 1}
+                                        </span>
+                                        <div
+                                            class="h-3 w-3 rounded-full shrink-0"
+                                            style="background-color: {constructor.teamColor}"
+                                        ></div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium truncate">
+                                                {constructor.teamName}
+                                            </p>
+                                        </div>
+                                        <span class="font-display text-sm font-bold tabular-nums"
+                                            >{constructor.totalPoints}</span
+                                        >
+                                    </div>
+                                {/each}
+                            </div>
+                        {:else}
+                            <div class="text-center py-4">
+                                <Trophy class="h-6 w-6 text-gold/40 mx-auto mb-1" />
+                                <p class="text-xs text-muted-foreground">No results yet</p>
+                            </div>
+                        {/if}
                     {/if}
                 </CardContent>
             </Card>
