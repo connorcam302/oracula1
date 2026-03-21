@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { races, tracks, raceResults, users, teams, seasons, seasonTeamMembers } from '$lib/server/db/schema';
+import { races, tracks, raceResults, users, teams, seasons, seasonTeamMembers, qualifyingResults } from '$lib/server/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
@@ -77,10 +77,25 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		userTeamMap[m.userId] = m.teamId;
 	}
 
+	// Get qualifying results with user info
+	const qualifying = await db
+		.select({
+			id: qualifyingResults.id,
+			position: qualifyingResults.position,
+			userId: users.id,
+			username: users.username,
+			avatarUrl: users.avatarUrl
+		})
+		.from(qualifyingResults)
+		.innerJoin(users, eq(qualifyingResults.userId, users.id))
+		.where(eq(qualifyingResults.raceId, raceId))
+		.orderBy(asc(qualifyingResults.position));
+
 	return {
 		race,
 		season,
 		results,
+		qualifying,
 		allUsers,
 		allTeams,
 		userTeamMap,

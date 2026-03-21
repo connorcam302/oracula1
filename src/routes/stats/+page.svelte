@@ -11,6 +11,8 @@
 
 	let { data } = $props();
 
+	let standingsView = $state<'drivers' | 'constructors'>('drivers');
+
 	function handleSeasonFilter(e: Event) {
 		const select = e.target as HTMLSelectElement;
 		const val = select.value;
@@ -171,16 +173,39 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-		<!-- Driver Standings -->
-		<Card>
-			<CardHeader>
+	<!-- Standings Toggle -->
+	<Card>
+		<CardHeader>
+			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-2">
-					<Trophy class="h-5 w-5 text-gold" />
-					<CardTitle>Driver Standings</CardTitle>
+					{#if standingsView === 'drivers'}
+						<Trophy class="h-5 w-5 text-gold" />
+						<CardTitle>Driver Standings</CardTitle>
+					{:else}
+						<Users class="h-5 w-5 text-blue" />
+						<CardTitle>Constructor Standings</CardTitle>
+					{/if}
 				</div>
-			</CardHeader>
-			<CardContent>
+				<div class="flex items-center rounded-lg bg-muted p-1 gap-1">
+					<button
+						onclick={() => (standingsView = 'drivers')}
+						class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors {standingsView === 'drivers' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<Trophy class="h-3.5 w-3.5" />
+						Drivers
+					</button>
+					<button
+						onclick={() => (standingsView = 'constructors')}
+						class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors {standingsView === 'constructors' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<Users class="h-3.5 w-3.5" />
+						Constructors
+					</button>
+				</div>
+			</div>
+		</CardHeader>
+		<CardContent>
+			{#if standingsView === 'drivers'}
 				<div class="space-y-1">
 					{#each data.driverStandings as driver, i}
 						<a
@@ -215,20 +240,10 @@
 						</a>
 					{/each}
 				</div>
-			</CardContent>
-		</Card>
-
-		<!-- Constructor Standings -->
-		<Card>
-			<CardHeader>
-				<div class="flex items-center gap-2">
-					<Users class="h-5 w-5 text-blue" />
-					<CardTitle>Constructor Standings</CardTitle>
-				</div>
-			</CardHeader>
-			<CardContent>
+			{:else}
 				<div class="space-y-1">
-					{#each data.constructorStandings as team, i}
+					{#each data.constructorStandings as _team, i}
+					{@const team = _team as { teamId: number; teamName: string; teamColor: string; totalPoints: number; totalRaces: number }}
 						<div class="flex items-center gap-3 rounded-lg p-2 {i === 0 ? 'bg-gold/5' : ''}">
 							<span
 								class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold {i === 0
@@ -247,15 +262,15 @@
 							></div>
 							<div class="flex-1 min-w-0">
 								<p class="text-sm font-medium truncate">{team.teamName}</p>
-								<p class="text-xs text-muted-foreground">{team.totalRaces} entries</p>
+								<p class="text-xs text-muted-foreground">{team.totalRaces} races · avg/race</p>
 							</div>
-							<span class="text-sm font-bold tabular-nums">{team.totalPoints} pts</span>
+							<span class="text-sm font-bold tabular-nums">{Number(team.totalPoints).toFixed(1)} pts</span>
 						</div>
 					{/each}
 				</div>
-			</CardContent>
-		</Card>
-	</div>
+			{/if}
+		</CardContent>
+	</Card>
 
 	<!-- Charts -->
 	{#if data.pointsPerRace.length > 0}

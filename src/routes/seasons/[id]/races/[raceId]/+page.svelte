@@ -14,9 +14,20 @@
 	let showAddResult = $state(false);
 	let selectedUser = $state('');
 	let position = $state(1);
+	let qualPos = $state<number | undefined>(undefined);
 	let isDnf = $state(false);
 	let selectedTeam = $state('');
 	let addingResult = $state(false);
+
+	// Inline qualifying edit state
+	let editingQualFor = $state<string | null>(null); // userId whose qual is being edited
+	let editQualPos = $state<number | undefined>(undefined);
+	let savingQual = $state(false);
+
+	// Map userId -> qualifying position
+	const qualMap = $derived(
+		Object.fromEntries((data.qualifying as any[]).map((q) => [q.userId, q.position]))
+	);
 
 	// When user changes, auto-fill team from season assignment
 	$effect(() => {
@@ -40,9 +51,18 @@
 				})
 			});
 			if (res.ok) {
+				// Also save qualifying if provided
+				if (qualPos) {
+					await fetch(`/api/races/${data.race.id}/qualifying`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ userId: selectedUser, position: qualPos })
+					});
+				}
 				showAddResult = false;
 				selectedUser = '';
 				isDnf = false;
+				qualPos = undefined;
 				position = data.results.length + 1;
 				await invalidateAll();
 			}
@@ -67,6 +87,37 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ resultId })
 		});
+		await invalidateAll();
+	}
+
+	function startEditQual(userId: string) {
+		editingQualFor = userId;
+		editQualPos = qualMap[userId] ?? undefined;
+	}
+
+	async function saveQual(userId: string) {
+		if (!editQualPos) return;
+		savingQual = true;
+		try {
+			await fetch(`/api/races/${data.race.id}/qualifying`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ userId, position: editQualPos })
+			});
+			editingQualFor = null;
+			await invalidateAll();
+		} finally {
+			savingQual = false;
+		}
+	}
+
+	async function clearQual(userId: string) {
+		await fetch(`/api/races/${data.race.id}/qualifying`, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ userId })
+		});
+		editingQualFor = null;
 		await invalidateAll();
 	}
 
@@ -133,7 +184,7 @@
 		<CardContent>
 			{#if showAddResult}
 				<div class="mb-6 rounded-lg border border-border p-4 space-y-3">
-					<div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
+					<div class="grid grid-cols-1 gap-3 sm:grid-cols-5">
 						<div>
 							<label for="result-driver" class="block text-sm font-medium mb-1">Driver</label>
 							<select
@@ -148,7 +199,7 @@
 							</select>
 						</div>
 						<div>
-							<label for="result-position" class="block text-sm font-medium mb-1">Position</label>
+							<label for="result-position" class="block text-sm font-medium mb-1">Race pos.</label>
 							<input
 								id="result-position"
 								type="number"
@@ -157,6 +208,18 @@
 								max="20"
 								disabled={isDnf}
 								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
+							/>
+						</div>
+						<div>
+							<label for="result-qual" class="block text-sm font-medium mb-1">Quali pos.</label>
+							<input
+								id="result-qual"
+								type="number"
+								bind:value={qualPos}
+								min="1"
+								max="20"
+								placeholder="—"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 							/>
 						</div>
 						<div>
@@ -202,7 +265,7 @@
 					<div
 						class="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-accent {getRowHighlight(result.position, result.dnf)}"
 					>
-						<!-- Position badge -->
+						<!-- Race position badge -->
 						<div class="w-10 text-center shrink-0">
 							{#if !result.dnf && result.position === 1}
 								<span class="flex h-8 w-8 mx-auto items-center justify-center rounded-full bg-gold/15 text-base font-extrabold text-gold">
@@ -246,8 +309,53 @@
 							{/if}
 						</div>
 
-						<!-- Points -->
-						<div class="text-right shrink-0">
+						<!-- Qualifying position -->
+						<div class="shrink-0 text-right">
+							{#if editingQualFor === result.userId}
+								<div class="flex items-center gap-1">
+									<input
+										type="number"
+										bind:value={editQualPos}
+										min="1"
+										max="20"
+										placeholder="Q?"
+										class="w-14 rounded border border-input bg-background px-2 py-1 text-xs text-center"
+										onkeydown={(e) => e.key === 'Enter' && saveQual(result.userId)}
+									/>
+									<button
+										onclick={() => saveQual(result.userId)}
+										disabled={savingQual}
+										class="rounded p-1 text-xs text-muted-foreground hover:text-foreground"
+									>✓</button>
+									<button
+										onclick={() => (editingQualFor = null)}
+										class="rounded p-1 text-xs text-muted-foreground hover:text-foreground"
+									>✕</button>
+								</div>
+							{:else if qualMap[result.userId]}
+								<Tooltip>
+									<TooltipTrigger>
+										<button
+											onclick={() => startEditQual(result.userId)}
+											class="text-xs font-medium text-muted-foreground hover:text-foreground tabular-nums"
+										>
+											Q{qualMap[result.userId]}
+										</button>
+									</TooltipTrigger>
+									<TooltipContent>Qualifying position · click to edit</TooltipContent>
+								</Tooltip>
+							{:else if result.userId === data.currentUserId}
+								<button
+									onclick={() => startEditQual(result.userId)}
+									class="text-xs text-muted-foreground/50 hover:text-muted-foreground"
+								>
+									Q?
+								</button>
+							{/if}
+						</div>
+
+						<!-- Race points -->
+						<div class="text-right shrink-0 w-16">
 							{#if result.dnf}
 								<Badge variant="destructive" class="text-xs">
 									<XCircle class="h-3 w-3 mr-1" />

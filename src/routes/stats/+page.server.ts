@@ -35,28 +35,46 @@ export const load: PageServerLoad = async ({ url }) => {
 		.groupBy(raceResults.userId, users.username, users.avatarUrl)
 		.orderBy(desc(sql`SUM(${raceResults.points})`));
 
-	// ── Constructor Standings ──────────────────────────
-	let constructorQuery = db
-		.select({
-			teamId: teams.id,
-			teamName: teams.name,
-			teamColor: teams.color,
-			totalPoints: sql<number>`SUM(${raceResults.points})`.as('total_points'),
-			totalRaces: count(raceResults.id)
-		})
-		.from(raceResults)
-		.innerJoin(teams, eq(raceResults.teamId, teams.id))
-		.innerJoin(races, eq(raceResults.raceId, races.id));
-
-	if (seasonFilter) {
-		constructorQuery = constructorQuery.where(
-			eq(races.seasonId, parseInt(seasonFilter))
-		) as any;
-	}
-
-	const constructorStandings = await (constructorQuery as any)
-		.groupBy(teams.id, teams.name, teams.color)
-		.orderBy(desc(sql`SUM(${raceResults.points})`));
+	// ── Constructor Standings (avg pts per driver per race) ──
+	// For each race, average the points across all drivers for a team,
+	// then sum those averages. This balances teams with 1 vs 2 drivers.
+	const constructorStandings = await db.execute(
+		seasonFilter
+			? sql`
+				SELECT
+					t.id as "teamId",
+					t.name as "teamName",
+					t.color as "teamColor",
+					ROUND(SUM(sub.avg_pts)::numeric, 1)::float as "totalPoints",
+					COUNT(*)::int as "totalRaces"
+				FROM (
+					SELECT rr.race_id, rr.team_id, AVG(rr.points) as avg_pts
+					FROM race_results rr
+					JOIN races r ON rr.race_id = r.id
+					WHERE r.season_id = ${parseInt(seasonFilter)}
+					GROUP BY rr.race_id, rr.team_id
+				) sub
+				JOIN teams t ON sub.team_id = t.id
+				GROUP BY t.id, t.name, t.color
+				ORDER BY "totalPoints" DESC
+			`
+			: sql`
+				SELECT
+					t.id as "teamId",
+					t.name as "teamName",
+					t.color as "teamColor",
+					ROUND(SUM(sub.avg_pts)::numeric, 1)::float as "totalPoints",
+					COUNT(*)::int as "totalRaces"
+				FROM (
+					SELECT rr.race_id, rr.team_id, AVG(rr.points) as avg_pts
+					FROM race_results rr
+					GROUP BY rr.race_id, rr.team_id
+				) sub
+				JOIN teams t ON sub.team_id = t.id
+				GROUP BY t.id, t.name, t.color
+				ORDER BY "totalPoints" DESC
+			`
+	);
 
 	// ── Points per Race (for charts) ──────────────────
 	// Get the selected season's race data for charts

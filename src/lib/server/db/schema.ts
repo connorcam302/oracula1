@@ -115,6 +115,18 @@ export const raceResults = pgTable('race_results', {
 	teamId: integer('team_id').references(() => teams.id)
 });
 
+// ── Qualifying Results ─────────────────────────────────
+export const qualifyingResults = pgTable('qualifying_results', {
+	id: serial('id').primaryKey(),
+	raceId: integer('race_id')
+		.notNull()
+		.references(() => races.id, { onDelete: 'cascade' }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id),
+	position: integer('position')
+});
+
 // ── Season Team Members ────────────────────────────────
 export const seasonTeamMembers = pgTable('season_team_members', {
 	id: serial('id').primaryKey(),
@@ -138,4 +150,5 @@ export type Track = typeof tracks.$inferSelect;
 export type Race = typeof races.$inferSelect;
 export type Team = typeof teams.$inferSelect;
 export type RaceResult = typeof raceResults.$inferSelect;
+export type QualifyingResult = typeof qualifyingResults.$inferSelect;
 export type SeasonTeamMember = typeof seasonTeamMembers.$inferSelect;
