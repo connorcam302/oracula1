@@ -65,25 +65,24 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	// Get all users for team assignment
 	const allUsers = await db.select({ id: users.id, username: users.username }).from(users).orderBy(asc(users.username));
 
-	// ── Constructor Standings (avg pts per driver per race) ──
-	const constructorStandings = await db.execute(sql`
-		SELECT
-			t.id as "teamId",
-			t.name as "teamName",
-			t.color as "teamColor",
-			ROUND(SUM(sub.avg_pts)::numeric, 1)::float as "totalPoints",
-			COUNT(*)::int as "totalRaces"
-		FROM (
-			SELECT rr.race_id, rr.team_id, AVG(rr.points) as avg_pts
-			FROM race_results rr
-			JOIN races r ON rr.race_id = r.id
-			WHERE r.season_id = ${seasonId}
-			GROUP BY rr.race_id, rr.team_id
-		) sub
-		JOIN teams t ON sub.team_id = t.id
-		GROUP BY t.id, t.name, t.color
-		ORDER BY "totalPoints" DESC
-	`);
+	// ── Constructor Standings ────────────────────────────────
+	const constructorStandings = await db
+		.select({
+			teamId: teams.id,
+			teamName: teams.name,
+			teamColor: teams.color,
+			totalPoints: sql<number>`SUM(${raceResults.points})`.as('total_points'),
+			totalRaces: sql<number>`COUNT(DISTINCT ${raceResults.raceId})`.as('total_races'),
+			wins: sql<number>`COUNT(CASE WHEN ${raceResults.position} = 1 THEN 1 END)`.as('wins'),
+			podiums: sql<number>`COUNT(CASE WHEN ${raceResults.position} <= 3 AND ${raceResults.position} IS NOT NULL THEN 1 END)`.as('podiums'),
+			dnfs: sql<number>`COUNT(CASE WHEN ${raceResults.dnf} = true THEN 1 END)`.as('dnfs'),
+		})
+		.from(raceResults)
+		.innerJoin(races, eq(raceResults.raceId, races.id))
+		.innerJoin(teams, eq(raceResults.teamId, teams.id))
+		.where(eq(races.seasonId, seasonId))
+		.groupBy(teams.id, teams.name, teams.color)
+		.orderBy(desc(sql`SUM(${raceResults.points})`));
 
 	// ── Driver Standings for this season ───────────────────
 	const driverStandings = await db

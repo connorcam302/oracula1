@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type WithoutChildrenOrChild<T> = T & { children?: never };
+export type WithoutChildrenOrChild<T> = Omit<T, "children" | "child">;
+export type WithElementRef<T, E extends Element = Element> = T & { ref?: E | null };
 
 const COUNTRY_TO_CODE: Record<string, string> = {
   Bahrain: "BH",

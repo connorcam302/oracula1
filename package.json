@@ -39,6 +39,7 @@
 		"@auth/sveltekit": "^1.11.1",
 		"@sveltejs/adapter-node": "^5.5.4",
 		"@tailwindcss/vite": "^4.2.2",
+		"@tanstack/table-core": "^8.21.3",
 		"bcryptjs": "^3.0.3",
 		"bits-ui": "^2.16.3",
 		"chart.js": "^4.5.1",
