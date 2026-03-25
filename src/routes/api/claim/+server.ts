@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { users, raceResults, seasonTeamMembers } from '$lib/server/db/schema';
+import { users, raceResults, seasonTeamMembers, qualifyingResults, raceEvents } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
 
@@ -46,6 +46,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				.update(raceResults)
 				.set({ userId: currentUserId })
 				.where(eq(raceResults.userId, placeholderUserId));
+
+			// Transfer qualifying results
+			await tx
+				.update(qualifyingResults)
+				.set({ userId: currentUserId })
+				.where(eq(qualifyingResults.userId, placeholderUserId));
+
+			// Transfer race events
+			await tx
+				.update(raceEvents)
+				.set({ userId: currentUserId })
+				.where(eq(raceEvents.userId, placeholderUserId));
 
 			// Transfer team memberships
 			await tx
