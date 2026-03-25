@@ -9,6 +9,7 @@ interface ImportResult {
 	position: number | null;
 	driver: string;
 	team: string;
+	teamId: number | null; // pre-resolved on frontend; falls back to team name lookup if absent
 	grid: number | null;
 	stops: number;
 	bestLap: string;
@@ -61,7 +62,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
 	// Insert race results + qualifying for each player
 	for (const result of results) {
-		const teamId = teamMap[result.team.toLowerCase()] ?? null;
+		const teamId = result.teamId ?? teamMap[result.team.toLowerCase()] ?? null;
 		const points = result.isDnf ? 0 : getPoints(result.position);
 
 		await db.insert(raceResults).values({

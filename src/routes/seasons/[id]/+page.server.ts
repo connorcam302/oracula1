@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { seasons, races, tracks, raceResults, users, teams, seasonTeamMembers } from '$lib/server/db/schema';
-import { eq, asc, desc, sql } from 'drizzle-orm';
+import { eq, asc, desc, sql, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
@@ -97,6 +97,9 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	`);
 
 	// ── Driver Standings for this season ───────────────────
+	// Team info comes from seasonTeamMembers (authoritative) rather than
+	// raceResults.teamId, which can be null when CSV team names don't match.
+	// Grouping by team columns would otherwise split the same user into multiple rows.
 	const driverStandings = await db
 		.select({
 			userId: raceResults.userId,
@@ -113,7 +116,8 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		.from(raceResults)
 		.innerJoin(users, eq(raceResults.userId, users.id))
 		.innerJoin(races, eq(raceResults.raceId, races.id))
-		.leftJoin(teams, eq(raceResults.teamId, teams.id))
+		.leftJoin(seasonTeamMembers, and(eq(seasonTeamMembers.userId, raceResults.userId), eq(seasonTeamMembers.seasonId, seasonId)))
+		.leftJoin(teams, eq(seasonTeamMembers.teamId, teams.id))
 		.where(eq(races.seasonId, seasonId))
 		.groupBy(raceResults.userId, users.username, users.avatarUrl, teams.name, teams.color)
 		.orderBy(desc(sql`SUM(${raceResults.points})`));

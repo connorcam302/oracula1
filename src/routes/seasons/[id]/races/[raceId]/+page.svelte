@@ -69,6 +69,8 @@
 	let csvEvents = $state<CsvEvent[]>([]);
 	let uniquePlayers = $state<UniquePlayer[]>([]);
 	let playerMapping = $state<Record<string, string>>({}); // key → userId
+	let uniqueCsvTeams = $state<string[]>([]); // unique team names from CSV
+	let teamMapping = $state<Record<string, number | null>>({}); // csv team name → db team id
 	let importError = $state('');
 	let importing = $state(false);
 
@@ -78,8 +80,40 @@
 		csvEvents = [];
 		uniquePlayers = [];
 		playerMapping = {};
+		uniqueCsvTeams = [];
+		teamMapping = {};
 		importError = '';
 		importing = false;
+	}
+
+	// Score how similar two team name strings are (0–1)
+	function teamSimilarity(a: string, b: string): number {
+		const na = a.toLowerCase().trim();
+		const nb = b.toLowerCase().trim();
+		if (na === nb) return 1;
+		if (na.includes(nb) || nb.includes(na)) return 0.8;
+		// Character overlap ratio
+		const setA = new Set(na.replace(/\s/g, '').split(''));
+		const setB = new Set(nb.replace(/\s/g, '').split(''));
+		const intersection = [...setA].filter((c) => setB.has(c)).length;
+		return intersection / Math.max(setA.size, setB.size);
+	}
+
+	function autoMatchTeams(csvTeams: string[]): Record<string, number | null> {
+		const mapping: Record<string, number | null> = {};
+		for (const csvTeam of csvTeams) {
+			let bestId: number | null = null;
+			let bestScore = 0;
+			for (const dbTeam of data.allTeams) {
+				const score = teamSimilarity(csvTeam, dbTeam.name);
+				if (score > bestScore && score >= 0.5) {
+					bestScore = score;
+					bestId = dbTeam.id;
+				}
+			}
+			mapping[csvTeam] = bestId;
+		}
+		return mapping;
 	}
 
 	function parseCSVLine(line: string): string[] {
@@ -169,6 +203,19 @@
 
 				uniquePlayers = players;
 				playerMapping = {};
+
+				// Collect unique team names from named player results and auto-match them
+				const teamSeen = new Set<string>();
+				const playerTeams: string[] = [];
+				for (const r of parsedResults) {
+					if (r.driverType === 'Player' && r.driver !== 'Player' && r.team && !teamSeen.has(r.team)) {
+						teamSeen.add(r.team);
+						playerTeams.push(r.team);
+					}
+				}
+				uniqueCsvTeams = playerTeams;
+				teamMapping = autoMatchTeams(playerTeams);
+
 				importError = '';
 				importStep = 'mapping';
 			} catch (err) {
@@ -180,7 +227,7 @@
 		input.value = '';
 	}
 
-	// Derived: player results with userId filled in
+	// Derived: player results with userId and resolved teamId filled in
 	const mappedResults = $derived(
 		csvResults
 			.filter((r) => r.driverType === 'Player' && r.driver !== 'Player')
@@ -188,7 +235,9 @@
 				const key = `named::${r.driver}`;
 				const userId = playerMapping[key] ?? null;
 				const user = userId ? data.allUsers.find((u: any) => u.id === userId) : null;
-				return { ...r, userId, username: user?.username ?? null };
+				const teamId = teamMapping[r.team] ?? null;
+				const dbTeam = teamId ? (data.allTeams as any[]).find((t) => t.id === teamId) : null;
+				return { ...r, userId, username: user?.username ?? null, teamId, resolvedTeamName: dbTeam?.name ?? null };
 			})
 	);
 
@@ -670,11 +719,14 @@
 			{/if}
 
 			{#if importStep === 'mapping'}
-				<div class="py-2 space-y-4">
-					<p class="text-sm text-muted-foreground">
-						{uniquePlayers.length} human driver{uniquePlayers.length !== 1 ? 's' : ''} detected. Match each to a league member.
-					</p>
+				<div class="py-2 space-y-5">
+
+					<!-- Driver → member mapping -->
 					<div class="space-y-3">
+						<p class="text-sm font-semibold">
+							Drivers
+							<span class="font-normal text-muted-foreground ml-1">— match each to a league member</span>
+						</p>
 						{#each uniquePlayers as player}
 							<div class="flex items-center gap-3">
 								<div class="flex-1 min-w-0">
@@ -695,10 +747,51 @@
 								</select>
 							</div>
 						{/each}
+						{#if uniquePlayers.length === 0}
+							<p class="text-sm text-muted-foreground italic">No human drivers detected in this session.</p>
+						{/if}
 					</div>
-					{#if uniquePlayers.length === 0}
-						<p class="text-sm text-muted-foreground italic">No human drivers detected in this session.</p>
+
+					<!-- Team name mapping -->
+					{#if uniqueCsvTeams.length > 0}
+						<div class="space-y-3 pt-3 border-t border-border">
+							<div>
+								<p class="text-sm font-semibold">
+									Teams
+									<span class="font-normal text-muted-foreground ml-1">— confirm CSV names match your teams</span>
+								</p>
+								{#if uniqueCsvTeams.some((t) => !teamMapping[t])}
+									<p class="text-xs text-amber-500 mt-1 flex items-center gap-1">
+										<AlertTriangle class="h-3 w-3 shrink-0" />
+										Unmatched teams will be saved without a team colour
+									</p>
+								{/if}
+							</div>
+							{#each uniqueCsvTeams as csvTeam}
+								{@const matchedId = teamMapping[csvTeam] ?? null}
+								<div class="flex items-center gap-3">
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-mono truncate">{csvTeam}</p>
+									</div>
+									<select
+										value={matchedId ?? ''}
+										onchange={(e) => {
+											const val = (e.target as HTMLSelectElement).value;
+											teamMapping = { ...teamMapping, [csvTeam]: val ? parseInt(val) : null };
+										}}
+										class="w-48 rounded-md border px-3 py-1.5 text-sm bg-background text-foreground
+											{matchedId ? 'border-input' : 'border-amber-400/60'}"
+									>
+										<option value="">No match</option>
+										{#each data.allTeams as team}
+											<option value={team.id}>{team.name}</option>
+										{/each}
+									</select>
+								</div>
+							{/each}
+						</div>
 					{/if}
+
 				</div>
 				<DialogFooter>
 					<Button variant="ghost" onclick={() => (importStep = 'upload')}>Back</Button>
@@ -729,7 +822,13 @@
 										<tr class="{r.isDnf ? 'text-destructive/70' : ''}">
 											<td class="px-3 py-2 font-mono">{r.isDnf ? 'DNF' : r.position}</td>
 											<td class="px-3 py-2 font-medium">{r.username ?? r.driver}</td>
-											<td class="px-3 py-2 text-muted-foreground">{r.team}</td>
+											<td class="px-3 py-2 text-muted-foreground">
+												{#if r.resolvedTeamName}
+													{r.resolvedTeamName}
+												{:else}
+													<span class="text-amber-500">{r.team} <span class="text-[10px]">(unmatched)</span></span>
+												{/if}
+											</td>
 											<td class="px-3 py-2 text-muted-foreground">{r.grid ?? '—'}</td>
 											<td class="px-3 py-2 font-mono text-muted-foreground">{r.time}</td>
 											<td class="px-3 py-2 font-semibold">{r.isDnf ? '0' : getPoints(r.position)}</td>

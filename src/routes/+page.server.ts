@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { seasons, races, tracks, raceResults, users, teams } from '$lib/server/db/schema';
+import { seasons, races, tracks, raceResults, users, teams, seasonTeamMembers } from '$lib/server/db/schema';
 import { desc, eq, sql, count, asc, and } from 'drizzle-orm';
 
 export const load: PageServerLoad = async () => {
@@ -61,7 +61,8 @@ export const load: PageServerLoad = async () => {
 			.from(raceResults)
 			.innerJoin(users, eq(raceResults.userId, users.id))
 			.innerJoin(races, eq(raceResults.raceId, races.id))
-			.leftJoin(teams, eq(raceResults.teamId, teams.id))
+			.leftJoin(seasonTeamMembers, and(eq(seasonTeamMembers.userId, raceResults.userId), eq(seasonTeamMembers.seasonId, seasonId)))
+			.leftJoin(teams, eq(seasonTeamMembers.teamId, teams.id))
 			.where(eq(races.seasonId, seasonId))
 			.groupBy(raceResults.userId, users.username, users.avatarUrl, teams.color)
 			.orderBy(desc(sql`SUM(${raceResults.points})`))
