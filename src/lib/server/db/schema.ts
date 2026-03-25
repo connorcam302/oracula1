@@ -112,7 +112,27 @@ export const raceResults = pgTable('race_results', {
 	position: integer('position'),
 	points: integer('points').default(0).notNull(),
 	dnf: boolean('dnf').default(false).notNull(),
-	teamId: integer('team_id').references(() => teams.id)
+	teamId: integer('team_id').references(() => teams.id),
+	gridPosition: integer('grid_position'),
+	stops: integer('stops'),
+	bestLap: varchar('best_lap', { length: 20 }),
+	raceTime: varchar('race_time', { length: 30 })
+});
+
+// ── Race Events ────────────────────────────────────────
+export const raceEvents = pgTable('race_events', {
+	id: serial('id').primaryKey(),
+	raceId: integer('race_id')
+		.notNull()
+		.references(() => races.id, { onDelete: 'cascade' }),
+	time: varchar('time', { length: 20 }),
+	lap: integer('lap'),
+	driver: text('driver').notNull(),
+	userId: text('user_id').references(() => users.id),
+	team: varchar('team', { length: 100 }),
+	incident: text('incident'),
+	penalty: varchar('penalty', { length: 100 }),
+	isAi: boolean('is_ai').default(false).notNull()
 });
 
 // ── Qualifying Results ─────────────────────────────────
@@ -152,3 +172,4 @@ export type Team = typeof teams.$inferSelect;
 export type RaceResult = typeof raceResults.$inferSelect;
 export type QualifyingResult = typeof qualifyingResults.$inferSelect;
 export type SeasonTeamMember = typeof seasonTeamMembers.$inferSelect;
+export type RaceEvent = typeof raceEvents.$inferSelect;

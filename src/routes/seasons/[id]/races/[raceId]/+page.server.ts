@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { races, tracks, raceResults, users, teams, seasons, seasonTeamMembers, qualifyingResults } from '$lib/server/db/schema';
+import { races, tracks, raceResults, users, teams, seasons, seasonTeamMembers, qualifyingResults, raceEvents } from '$lib/server/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
@@ -41,6 +41,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			position: raceResults.position,
 			points: raceResults.points,
 			dnf: raceResults.dnf,
+			gridPosition: raceResults.gridPosition,
+			stops: raceResults.stops,
+			bestLap: raceResults.bestLap,
+			raceTime: raceResults.raceTime,
 			userId: users.id,
 			username: users.username,
 			avatarUrl: users.avatarUrl,
@@ -91,11 +95,32 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		.where(eq(qualifyingResults.raceId, raceId))
 		.orderBy(asc(qualifyingResults.position));
 
+	// Get race events with user info
+	const events = await db
+		.select({
+			id: raceEvents.id,
+			time: raceEvents.time,
+			lap: raceEvents.lap,
+			driver: raceEvents.driver,
+			userId: raceEvents.userId,
+			team: raceEvents.team,
+			incident: raceEvents.incident,
+			penalty: raceEvents.penalty,
+			isAi: raceEvents.isAi,
+			username: users.username,
+			avatarUrl: users.avatarUrl
+		})
+		.from(raceEvents)
+		.leftJoin(users, eq(raceEvents.userId, users.id))
+		.where(eq(raceEvents.raceId, raceId))
+		.orderBy(asc(raceEvents.lap), asc(raceEvents.time));
+
 	return {
 		race,
 		season,
 		results,
 		qualifying,
+		events,
 		allUsers,
 		allTeams,
 		userTeamMap,
